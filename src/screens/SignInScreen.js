@@ -13,14 +13,6 @@ const SignInScreen = ({props,navigation}) => {
     const [password, setPassword] = useState('')
 
 
-    props.componentDidMount(() =>{
-        auth.onAuthStateChanged(user =>{
-            if(user){
-                navigation.navigate('Dashboard')
-            }
-        })
-    })
-
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user =>{
             if(user){
