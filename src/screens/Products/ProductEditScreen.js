@@ -51,6 +51,9 @@ class ProductEditScreen extends Component{
     fetchCollection = (querySnapshot) => {
         const product = null
         const currentData = querySnapshot.data()
+        if(currentData.key === 'undefined'){
+            this.props.navigation.navigate('ProductList')
+        }
         this.state.key = currentData.key
         this.state.name = currentData.name
         this.state.sector = currentData.sector
@@ -82,7 +85,6 @@ class ProductEditScreen extends Component{
 
     //https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/
     editProduct() {
-
         if(
             this.state.name === '' ||
             this.state.sector === '' ||
@@ -138,6 +140,22 @@ class ProductEditScreen extends Component{
                     });
                 });
         }
+    }
+
+    deleteProduct(){
+        Toast.show({
+            type: 'info',
+            text1: 'Czy jesteś tego pewny?',
+            text2: 'Aby potwierdzić usunięcie tego elementu, kliknij powiadomienie',
+            position: "bottom",
+            bottomOffset: 150,
+            visibilityTime: 1000,
+            onPress: () =>{
+                this.ref.delete().then((res) => {
+                    this.props.navigation.navigate('Dashboard')
+                })
+            }
+        });
     }
 
     render() {
@@ -221,8 +239,14 @@ class ProductEditScreen extends Component{
                         color="black"
                         style={styles.buttonCreate}
                     />
-
-
+                </View>
+                <View style={styles.buttonDeleteRow}>
+                    <Button
+                        title='Usuń produkt'
+                        onPress={() => this.deleteProduct()}
+                        color="red"
+                        style={styles.buttonDelete}
+                    />
                 </View>
                 <Toast style={styles.toast}/>
             </ScrollView>
@@ -239,11 +263,16 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         marginTop: 20
     },
-    buttonCreate:{
+    buttonDelete:{
+        marginTop: 20,
         paddingVertical: 10,
         paddingBottom: 20,
         position: "relative",
         bottom: 0
+    },
+    buttonDeleteRow:{
+      marginVertical: 20,
+      marginTop: 20,
     },
 });
 

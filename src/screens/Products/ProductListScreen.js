@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { StyleSheet, ScrollView, ActivityIndicator, View } from 'react-native';
+import {StyleSheet, ScrollView, ActivityIndicator, View, Button} from 'react-native';
 import firebase from "../../../firebase";
 import { ListItem } from 'react-native-elements'
 import {SearchBar} from "react-native-screens";
@@ -8,7 +8,7 @@ class ProductListScreen extends Component{
 
     constructor() {
         super();
-        this.docs = firebase.firestore().collection('products');
+        this.docs = firebase.firestore().collection('products')
         this.state = {
             isLoading: true,
             products: [],
@@ -18,7 +18,7 @@ class ProductListScreen extends Component{
     }
 
     componentDidMount() {
-        this.unsubscribe = this.docs.onSnapshot(this.fetchCollection);
+        this.unsubscribe = this.docs.onSnapshot(this.fetchCollection)
     }
 
     componentWillUnmount(){
@@ -28,7 +28,7 @@ class ProductListScreen extends Component{
     fetchCollection = (querySnapshot) => {
         const products = [];
         querySnapshot.forEach((res) => {
-            const { name, weight, type_package } = res.data();
+            const { name, weight, type_package } = res.data()
             products.push({
                 key: res.id,
                 name,
@@ -44,26 +44,30 @@ class ProductListScreen extends Component{
     }
 
     onValUpdate = (val, prop) => {
-        const state = this.state;
-        state[prop] = val;
-        this.setState(state);
+        const state = this.state
+        state[prop] = val
+        this.setState(state)
     }
 
     search = (val, prop) => {
-        const state = this.state;
-        state[prop] = val;
-        this.setState(state);
+        const state = this.state
+        state[prop] = val
+        this.setState(state)
 
         if(state[prop].length === 0){
-            this.onValUpdate(this.state.AllProducts, 'products');
+            this.onValUpdate(this.state.AllProducts, 'products')
         }else{
             let newArray = this.state.products.filter(function (el)
                 {
-                    return el.name.toLowerCase().includes(state[prop].toLowerCase()) ;
+                    return el.name.toLowerCase().includes(state[prop].toLowerCase())
                 }
             );
             this.onValUpdate(newArray, 'products');
         }
+    }
+
+    navigateToProductAdd = () => {
+        this.props.navigation.navigate('ProductsCreate')
     }
 
     render() {
@@ -76,6 +80,14 @@ class ProductListScreen extends Component{
         }
         return (
             <ScrollView style={styles.wrapper}>
+                <View style={styles.buttonAddView}>
+                    <Button
+                        title='+ Dodaj produkt'
+                        style={styles.buttonAdd}
+                        onPress={() => this.navigateToProductAdd()}
+                    />
+                </View>
+
                 <CustomInput
                     placeholder="Szukaj .."
                     value={this.state.searchText}
@@ -126,6 +138,12 @@ const styles = StyleSheet.create({
     },
     searchInput:{
         marginBottom: 20
+    },
+    buttonAddView:{
+      alignItems: "flex-end"
+    },
+    buttonAdd:{
+        color: 'black'
     }
 })
 

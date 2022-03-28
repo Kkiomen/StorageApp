@@ -17,8 +17,7 @@ const DashboardScreen = ({navigation}) => {
             })
     }
     const onPressMenuOptions = () => {
-        navigation.navigate('ProductsCreate')
-        //console.warn("Click")
+        navigation.navigate('ProductList')
     }
 
 
