@@ -5,6 +5,8 @@ import DashboardScreen from "./src/screens/DashboardScreen";
 import ProductsCreatScreen from "./src/screens/Products/ProductCreateScreen";
 import TakePhotoScreen from "./src/screens/TakePhoto";
 import BarcodeScreen from "./src/screens/BarcodeScreen";
+import ProductListScreen from "./src/screens/Products/ProductListScreen";
+import ProductEditScreen from "./src/screens/Products/ProductEditScreen";
 
 const navigator = createStackNavigator(
     {
@@ -15,9 +17,31 @@ const navigator = createStackNavigator(
               headerShown: false
           }),
       },
-      ProductsCreate: ProductsCreatScreen,
+      ProductsCreate: {
+          screen: ProductsCreatScreen,
+          navigationOptions: () => ({
+              title: "Dodaj produkt",
+          }),
+      },
       TakePhoto: TakePhotoScreen,
-      BarcodeScan: BarcodeScreen,
+      BarcodeScan: {
+          screen: BarcodeScreen,
+          navigationOptions: () => ({
+              headerShown: false,
+          }),
+      },
+      ProductList: {
+          screen: ProductListScreen,
+          navigationOptions: () => ({
+              title: "Lista produktów",
+          }),
+      },
+      ProductEdit: {
+          screen: ProductEditScreen,
+          navigationOptions: () => ({
+              title: "Edytuj produkty",
+          }),
+      },
     },
     {
       initialRouteName: "SignIn",

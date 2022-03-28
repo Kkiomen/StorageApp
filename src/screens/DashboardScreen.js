@@ -23,7 +23,7 @@ const DashboardScreen = ({navigation}) => {
 
 
      const onPressMenuOptionsLanguage = () => {
-        navigation.navigate('LanguageSelectorScreen')
+        navigation.navigate('ProductList')
     }
 
     return (
@@ -42,6 +42,7 @@ const DashboardScreen = ({navigation}) => {
 
             <FontAwesomeIcon  icon={faCar} mask={faSquare} size={45} />
             <Text>fdssfdsdfsdf</Text>
+
 
             <Button
                 title='Produkty'

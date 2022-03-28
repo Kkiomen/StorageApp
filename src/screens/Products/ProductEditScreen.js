@@ -1,18 +1,21 @@
-import React, {Component,useState, useContext} from 'react'
-import {Button, StyleSheet, ScrollView, ActivityIndicator, View, TextInput, Platform, Text} from "react-native";
+import React, {Component} from 'react'
+import {StyleSheet, View, Text, ActivityIndicator, ScrollView, Button} from "react-native";
 import firebase from "../../../firebase";
-import storage from "firebase/compat";
+import Toast from "react-native-toast-message";
 import CustomInput from "../../components/CustomInput/CustomInput";
-import Toast from 'react-native-toast-message';
 
-class ProductsCreatScreen extends Component{
+class ProductEditScreen extends Component{
 
     constructor({props,navigation}) {
         super();
-        this.ref = firebase.firestore().collection('products');
-        let tmp = navigation.getParam('data')
+
+        this.ref = firebase.firestore().collection('products').doc(navigation.getParam('userkey'));
+       // console.log(this.ref);
+        let tmp = navigation.getParam('data');
+
         if(typeof tmp !== 'undefined'){
             this.state = {
+                key: tmp.key,
                 name: tmp.name,
                 sector: tmp.sector,
                 barcode: tmp.barcode,
@@ -24,6 +27,7 @@ class ProductsCreatScreen extends Component{
             };
         }else{
             this.state = {
+                key: '',
                 name: '',
                 sector:  '',
                 barcode: '',
@@ -34,6 +38,31 @@ class ProductsCreatScreen extends Component{
                 isLoading: false
             };
         }
+    }
+
+    componentDidMount() {
+        this.unsubscribe = this.ref.onSnapshot(this.fetchCollection);
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe();
+    }
+
+    fetchCollection = (querySnapshot) => {
+        const product = null
+        const currentData = querySnapshot.data()
+        this.state.key = currentData.key
+        this.state.name = currentData.name
+        this.state.sector = currentData.sector
+        this.state.barcode = currentData.barcode
+        this.state.type_package = currentData.type_package
+        this.state.weight = currentData.weight
+        this.state.price_netto = currentData.price_netto
+        this.state.price_brutto = currentData.price_brutto
+        this.setState({
+            product,
+            isLoading: false
+        });
     }
 
     scanBarCode = () => {
@@ -52,7 +81,7 @@ class ProductsCreatScreen extends Component{
     }
 
     //https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/
-    addNewProduct() {
+    editProduct() {
 
         if(
             this.state.name === '' ||
@@ -81,7 +110,7 @@ class ProductsCreatScreen extends Component{
             this.setState({
                 isLoading: true,
             });
-            this.ref.add({
+            this.ref.set({
                 name: this.state.name,
                 sector: this.state.sector,
                 barcode: this.state.barcode,
@@ -187,8 +216,8 @@ class ProductsCreatScreen extends Component{
 
                 <View style={styles.button}>
                     <Button
-                        title='Dodaj produkt'
-                        onPress={() => this.addNewProduct()}
+                        title='Edytuj produkt'
+                        onPress={() => this.editProduct()}
                         color="black"
                         style={styles.buttonCreate}
                     />
@@ -218,5 +247,6 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProductsCreatScreen;
+
+export default ProductEditScreen;
 
