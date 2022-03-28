@@ -37,7 +37,7 @@ class ProductsCreatScreen extends Component{
     }
 
     scanBarCode = () => {
-        this.props.navigation.navigate('BarcodeScan', {data: this.state})
+        this.props.navigation.navigate('BarcodeScan', {data: this.state, page: 'ProductsCreate'})
     }
 
 

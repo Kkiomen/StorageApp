@@ -19,7 +19,7 @@ const BarcodeScreen = ({props,navigation}) => {
         setScanned(true);
         dataForm = navigation.getParam('data');
         dataForm['barcode'] = data
-        navigation.navigate('ProductsCreate', {data: dataForm})
+        navigation.navigate(navigation.getParam('page'), {data: dataForm})
     };
 
     if (hasPermission === null) {
