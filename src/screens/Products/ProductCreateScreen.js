@@ -1,17 +1,17 @@
-import React, {Component,useState, useContext} from 'react'
+import React, {Component, useState, useContext} from 'react'
 import {Button, StyleSheet, ScrollView, ActivityIndicator, View, TextInput, Platform, Text} from "react-native";
 import firebase from "../../../firebase";
 import storage from "firebase/compat";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import Toast from 'react-native-toast-message';
 
-class ProductsCreatScreen extends Component{
+class ProductsCreatScreen extends Component {
 
-    constructor({props,navigation}) {
+    constructor({props, navigation}) {
         super();
         this.ref = firebase.firestore().collection('products');
         let tmp = navigation.getParam('data')
-        if(typeof tmp !== 'undefined'){
+        if (typeof tmp !== 'undefined') {
             this.state = {
                 name: tmp.name,
                 sector: tmp.sector,
@@ -22,10 +22,10 @@ class ProductsCreatScreen extends Component{
                 price_brutto: tmp.price_brutto,
                 isLoading: false
             };
-        }else{
+        } else {
             this.state = {
                 name: '',
-                sector:  '',
+                sector: '',
                 barcode: '',
                 type_package: '',
                 weight: '',
@@ -47,14 +47,13 @@ class ProductsCreatScreen extends Component{
         this.setState(state);
     }
 
-    isNum(val){
+    isNum(val) {
         return !isNaN(val)
     }
 
-    //https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/
-    addNewProduct() {
 
-        if(
+    addNewProduct() {
+        if (
             this.state.name === '' ||
             this.state.sector === '' ||
             this.state.barcode === '' ||
@@ -62,7 +61,7 @@ class ProductsCreatScreen extends Component{
             this.state.weight === '' ||
             this.state.price_netto === '' ||
             this.state.price_brutto === ''
-        ){
+        ) {
             Toast.show({
                 type: 'error',
                 text1: 'Wystąpił błąd',
@@ -70,7 +69,7 @@ class ProductsCreatScreen extends Component{
                 position: "bottom"
             });
 
-        }else if(!this.isNum(this.state.price_netto) || !this.isNum(this.state.price_brutto) ){
+        } else if (!this.isNum(this.state.price_netto) || !this.isNum(this.state.price_brutto)) {
             Toast.show({
                 type: 'error',
                 text1: 'Wystąpił błąd',
@@ -92,7 +91,7 @@ class ProductsCreatScreen extends Component{
             }).then((res) => {
                 this.setState({
                     name: '',
-                    sector:  '',
+                    sector: '',
                     barcode: '',
                     type_package: '',
                     weight: '',
@@ -101,19 +100,18 @@ class ProductsCreatScreen extends Component{
                     isLoading: false,
                 });
                 this.props.navigation.navigate('ProductList')
-            })
-                .catch((err) => {
-                    console.error("Error occured: ", err);
-                    this.setState({
-                        isLoading: false,
-                    });
+            }).catch((err) => {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Coś poszło nie tak. Spróbuj ponownie później',
                 });
+            });
         }
     }
 
     render() {
-        if(this.state.isLoading){
-            return(
+        if (this.state.isLoading) {
+            return (
                 <View style={styles.loading}>
                     <ActivityIndicator size="large" color="green"/>
                 </View>
@@ -202,15 +200,15 @@ class ProductsCreatScreen extends Component{
 }
 
 const styles = StyleSheet.create({
-    formEle:{
+    formEle: {
         padding: 20
     },
-    label:{
+    label: {
         alignItems: 'flex-start',
         textAlign: 'left',
         marginTop: 20
     },
-    buttonCreate:{
+    buttonCreate: {
         paddingVertical: 10,
         paddingBottom: 20,
         position: "relative",

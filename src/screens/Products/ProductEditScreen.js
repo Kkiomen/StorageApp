@@ -23,50 +23,34 @@ class ProductEditScreen extends Component{
                 weight: tmp.weight,
                 price_netto: tmp.price_netto,
                 price_brutto: tmp.price_brutto,
-                isLoading: false
-            };
-        }else{
-            this.state = {
-                key: '',
-                name: '',
-                sector:  '',
-                barcode: '',
-                type_package: '',
-                weight: '',
-                price_netto: '',
-                price_brutto: '',
-                isLoading: false
+                isLoading: false,
+                isDeleted: false
             };
         }
     }
+
 
     componentDidMount() {
-        this.unsubscribe = this.ref.onSnapshot(this.fetchCollection);
-    }
-
-    componentWillUnmount(){
-        this.unsubscribe();
-    }
-
-    fetchCollection = (querySnapshot) => {
-        const product = null
-        const currentData = querySnapshot.data()
-        if(currentData.key === 'undefined'){
-            this.props.navigation.navigate('ProductList')
-        }
-        this.state.key = currentData.key
-        this.state.name = currentData.name
-        this.state.sector = currentData.sector
-        this.state.barcode = currentData.barcode
-        this.state.type_package = currentData.type_package
-        this.state.weight = currentData.weight
-        this.state.price_netto = currentData.price_netto
-        this.state.price_brutto = currentData.price_brutto
-        this.setState({
-            product,
-            isLoading: false
+        this.ref.get().then((res) => {
+            if (res.exists) {
+                const element = res.data();
+                this.setState({
+                    key: res.id,
+                    name: element.name,
+                    sector:  element.sector,
+                    barcode: element.barcode,
+                    type_package: element.type_package,
+                    weight: element.weight,
+                    price_netto: element.price_netto,
+                    price_brutto: element.price_brutto,
+                    isLoading: false
+                });
+            } else {
+                this.props.navigation.navigate('ProductList')
+            }
         });
     }
+
 
     scanBarCode = () => {
         this.props.navigation.navigate('BarcodeScan', {data: this.state, page: 'ProductEdit'})
@@ -121,24 +105,13 @@ class ProductEditScreen extends Component{
                 price_brutto: this.state.price_brutto,
                 price_netto: this.state.price_netto
             }).then((res) => {
-                this.setState({
-                    name: '',
-                    sector:  '',
-                    barcode: '',
-                    type_package: '',
-                    weight: '',
-                    price_netto: '',
-                    price_brutto: '',
-                    isLoading: false,
-                });
                 this.props.navigation.navigate('ProductList')
-            })
-                .catch((err) => {
-                    console.error("Error occured: ", err);
-                    this.setState({
-                        isLoading: false,
-                    });
+            }).catch((err) => {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Coś poszło nie tak. Spróbuj ponownie później',
                 });
+            });
         }
     }
 
@@ -153,7 +126,12 @@ class ProductEditScreen extends Component{
             onPress: () =>{
                 this.ref.delete().then((res) => {
                     this.props.navigation.navigate('Dashboard')
-                })
+                }).catch((err) => {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Coś poszło nie tak. Spróbuj ponownie później',
+                    });
+                });
             }
         });
     }
