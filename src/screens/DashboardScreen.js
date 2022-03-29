@@ -21,8 +21,12 @@ const DashboardScreen = ({navigation}) => {
     }
 
 
-     const onPressMenuOptionsLanguage = () => {
-        navigation.navigate('ProductList')
+     const onPressMenuOptionsContractor = (type) => {
+        navigation.navigate('CompaniesList', {type: type})
+    }
+
+    const onPressMenuOptionsOrder = () => {
+        navigation.navigate('OrderCreate')
     }
 
     return (
@@ -39,22 +43,43 @@ const DashboardScreen = ({navigation}) => {
                 </Pressable>
             </ScrollView>
 
-            <FontAwesomeIcon  icon={faCar} mask={faSquare} size={45} />
+            <FontAwesomeIcon  icon={faCar} size={45} />
             <Text>fdssfdsdfsdf</Text>
 
+            <ScrollView>
 
             <Button
                 title='Produkty'
                 onPress={() => onPressMenuOptions()}
                 color="black"
+                style={styles.buttonMargin}
             />
 
 
             <Button
-                title='Zmiana jzyka'
-                onPress={() => onPressMenuOptionsLanguage()}
+                title='Przewoźnicy'
+                onPress={() => onPressMenuOptionsContractor('CARRIERS')}
                 color="black"
+                style={styles.buttonMargin}
             />
+
+            <Button
+                title='Kontrachenci'
+                onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
+                color="black"
+                style={styles.buttonMargin}
+            />
+
+                <Button
+                    title='Zamówienia'
+                    onPress={() => onPressMenuOptionsOrder()}
+                    color="black"
+                    style={styles.buttonMargin}
+                />
+
+            </ScrollView>
+
+
             {/*<Text>Logged</Text>*/}
             {/*<CustomButton*/}
             {/*    text="Log out"*/}
@@ -89,6 +114,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 20,
         marginEnd: 20,
+    },
+    buttonMargin:{
+        marginVertical: 20,
+        marginBottom: 30,
     }
 });
 

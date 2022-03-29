@@ -1,47 +1,69 @@
-import React, {Component} from 'react'
-import {StyleSheet, ScrollView, ActivityIndicator, View, Button} from 'react-native';
+import React, {Component, useLayoutEffect} from 'react'
+import {StyleSheet, View, Text, ActivityIndicator, ScrollView, Button} from "react-native";
 import firebase from "../../../firebase";
-import { ListItem } from 'react-native-elements'
-import {SearchBar} from "react-native-screens";
 import CustomInput from "../../components/CustomInput/CustomInput";
-class ProductListScreen extends Component{
+import {ListItem} from "react-native-elements";
+import types from "./type";
 
-    constructor() {
+
+const TypeEnum = types
+
+
+class CompaniesListScreen extends Component{
+
+    constructor({props, navigation}) {
         super();
-        this.docs = firebase.firestore().collection('products')
+        this.docs = firebase.firestore().collection(navigation.getParam('type').toLowerCase())
+
+        if(navigation.getParam('type') === "CARRIERS"){
+            this.name = TypeEnum.CARRIERS
+        }else if(navigation.getParam('type') === "CONTRACTORS"){
+            this.name = TypeEnum.CONTRACTORS
+        }
+
+
         this.state = {
             isLoading: true,
-            products: [],
-            AllProducts: [],
-            searchText: ''
+            companies: [],
+            AllCompanies: [],
+            searchText: '',
+            type: navigation.getParam('type')
         };
+    }
+
+    useLayoutEffect() {
+        this.navigation.setOptions({headerShown: true, title: 'gdfdfg'});
     }
 
     componentDidMount() {
         this.unsubscribe = this.docs.onSnapshot(this.fetchCollection)
     }
 
-    componentWillUnmount(){
-        //this.unsubscribe();
-    }
-
     fetchCollection = (querySnapshot) => {
-        const products = [];
+        const companies = [];
         querySnapshot.forEach((res) => {
-            const { name, weight, type_package } = res.data()
-            products.push({
+            const { name,nip,city } = res.data()
+            companies.push({
                 key: res.id,
                 name,
-                weight,
-                type_package
+                nip,
+                city
             });
         });
         this.setState({
-            products,
+            companies,
             isLoading: false
         });
-        this.onValUpdate(products,'AllProducts')
+        if (typeof companies !== 'undefined' && companies.length === 0) {
+            this.setState({
+                isLoading: false
+            });
+        }
+
+
+        this.onValUpdate(companies,'AllCompanies')
     }
+
 
     onValUpdate = (val, prop) => {
         const state = this.state
@@ -55,23 +77,24 @@ class ProductListScreen extends Component{
         this.setState(state)
 
         if(state[prop].length === 0){
-            this.onValUpdate(this.state.AllProducts, 'products')
+            this.onValUpdate(this.state.AllCompanies, 'companies')
         }else{
-            let newArray = this.state.products.filter(function (el)
+            let newArray = this.state.companies.filter(function (el)
                 {
                     return el.name.toLowerCase().includes(state[prop].toLowerCase())
                 }
             );
-            this.onValUpdate(newArray, 'products');
+            this.onValUpdate(newArray, 'companies');
         }
     }
 
-    navigateToProductAdd = () => {
-        this.props.navigation.navigate('ProductsCreate')
+
+    navigateToCompanyAdd = () => {
+        this.props.navigation.navigate('CompaniesCreate', {type: this.props.navigation.getParam('type')})
     }
 
     render() {
-        if(this.state.isLoading){
+        if(this.state.isLoading ){
             return(
                 <View style={styles.loader}>
                     <ActivityIndicator size="large" color="red"/>
@@ -80,11 +103,15 @@ class ProductListScreen extends Component{
         }
         return (
             <ScrollView style={styles.wrapper}>
+                <View style={styles.header}>
+                    <Text>{this.name}</Text>
+                </View>
+
                 <View style={styles.buttonAddView}>
                     <Button
-                        title='+ Dodaj produkt'
+                        title='+ Dodaj Firmę'
                         style={styles.buttonAdd}
-                        onPress={() => this.navigateToProductAdd()}
+                        onPress={() => this.navigateToCompanyAdd()}
                     />
                 </View>
 
@@ -96,19 +123,20 @@ class ProductListScreen extends Component{
                 />
 
                 {
-                    this.state.products.map((res, i) => {
+                    this.state.companies.map((res, i) => {
                         return (
                             <ListItem
                                 key={i}
                                 onPress={() => {
-                                    this.props.navigation.navigate('ProductEdit', {
-                                        userkey: res.key
+                                    this.props.navigation.navigate('CompaniesEdit', {
+                                        key: res.key,
+                                        type: this.state.type
                                     });
                                 }}
                                 bottomDivider>
                                 <ListItem.Content>
                                     <ListItem.Title>{res.name}</ListItem.Title>
-                                    <ListItem.Subtitle>{res.weight}</ListItem.Subtitle>
+                                    <ListItem.Subtitle>{res.nip} - {res.city}</ListItem.Subtitle>
                                 </ListItem.Content>
                                 <ListItem.Chevron
                                     color="black"
@@ -121,6 +149,7 @@ class ProductListScreen extends Component{
         );
     }
 }
+
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -140,12 +169,20 @@ const styles = StyleSheet.create({
         marginBottom: 20
     },
     buttonAddView:{
-      alignItems: "flex-end"
+        alignItems: "flex-end"
     },
     buttonAdd:{
         color: 'black'
+    },
+    header:{
+        alignItems: "center",
+        padding: 10,
+        borderWidth: 1,
+        marginBottom: 20,
+        backgroundColor: "white"
     }
 })
 
-export default ProductListScreen;
+
+export default CompaniesListScreen;
 
