@@ -12,6 +12,7 @@ import CompaniesCreateScreen from "./src/screens/Companies/CompaniesCreateScreen
 import CompaniesEditScreen from "./src/screens/Companies/CompaniesEditScreen";
 import OrdersCreateScreen from "./src/screens/Orders/OrdersCreateScreen";
 import OrdersListScreen from "./src/screens/Orders/OrdersListScreen";
+import OrdersEditScreen from "./src/screens/Orders/OrdersEditScreen";
 
 const navigator = createStackNavigator(
     {
@@ -77,9 +78,15 @@ const navigator = createStackNavigator(
                 title: "Lista zamówień"
             })
         },
+        OrdersEdit:{
+            screen: OrdersEditScreen,
+            navigationOptions: () => ({
+                title: "Edytuj zamówienie"
+            })
+        },
     },
     {
-      initialRouteName: "OrdersList",
+      initialRouteName: "SignIn",
       defaultNavigationOptions: {
         title: "App",
       },

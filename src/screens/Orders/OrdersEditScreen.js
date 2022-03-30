@@ -8,10 +8,11 @@ import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhit
 import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
 
-class OrdersCreateScreen extends Component {
+class OrdersEditScreen extends Component {
 
     constructor({props, navigation}) {
         super();
+        this.array = []
         this.carriersFireBase = firebase.firestore().collection('carriers')
         this.contractorsFireBase = firebase.firestore().collection('contractors')
         this.productsFireBase = firebase.firestore().collection('products')
@@ -45,12 +46,53 @@ class OrdersCreateScreen extends Component {
             choosedProducts: [],
             amountProduct: 0,
             lastOrder: null,
+
+
+            editOrder: {},
+            productsList: [],
+            orderProductKeys: []
         }
     }
 
     componentDidMount() {
+        //Read and put info from order
+        this.onValUpdate(this.props.navigation.getParam('order'), 'editOrder')
+        this.onValUpdate(this.state.editOrder.invoiceNumber.slice(0, -5),'invoiceNumber')
+
         this.unsubscribeCarriers = this.carriersFireBase.onSnapshot(this.fetchCollectionCarriers)
         this.unsubscribeContractors = this.contractorsFireBase.onSnapshot(this.fetchCollectionContractors)
+
+
+        const db = firebase.firestore();
+        const orderKey = this.state.editOrder.key;
+        const arrayProduct = []
+        const arrayProductKey = []
+        db.collection('ordersProducts')
+            .where('order', '==', orderKey).get().then(querySnapshot => {
+            querySnapshot.forEach((doc) => {
+                const productKey = doc.data().product
+                arrayProductKey.push({
+                    productKey: doc.data().product,
+                    amount: doc.data().amount,
+                })
+            });
+        }).then( () =>{
+            //console.log(arrayProductKey)
+            const elements = []
+            arrayProductKey.map((res, i) => {
+                db.collection('products').doc(res.productKey).get().then((resc) => {
+                    const element = resc.data();
+                    element['amount'] = res.amount
+                    element['key'] = res.productKey
+                    elements.push(element)
+                }).then(() =>{
+                    this.onValUpdate(elements,'choosedProducts')
+                    //console.log(this.state.choosedProducts)
+                })
+            })
+        });
+        this.onValUpdate(arrayProductKey, 'orderProductKeys')
+
         this.unsubscribeProducts = this.productsFireBase.onSnapshot(this.fetchCollectionProducts)
     }
 
@@ -67,12 +109,19 @@ class OrdersCreateScreen extends Component {
         this.setState({
             carriers,
         });
+
+
         if (typeof carriers !== 'undefined' && carriers.length === 0) {
             this.setState({
                 isLoading: false
             });
         }
         this.onValUpdate(carriers, 'AllCarriers')
+        const carrierKey = this.state.editOrder.carrier
+        let getCarrier = carriers.filter(function (el) {
+            return el.key.includes(carrierKey)
+        })
+        this.onValUpdate(getCarrier[0], 'choosedCarrier')
     }
 
     fetchCollectionContractors = (querySnapshot) => {
@@ -93,6 +142,11 @@ class OrdersCreateScreen extends Component {
             });
         }
         this.onValUpdate(contractors, 'AllContractors')
+        const contractorKey = this.state.editOrder.contractor.key
+        let getContractor = contractors.filter(function (el) {
+            return el.key.includes(contractorKey)
+        })
+        this.onValUpdate(getContractor[0], 'choosedContractor')
     }
 
 
@@ -216,10 +270,14 @@ class OrdersCreateScreen extends Component {
         this.onValUpdate(tmp,'choosedProducts')
     }
 
+
     saveOrder() {
-        const db = firebase.firestore().collection('orders')
+
+        const key = this.state.editOrder.key
+        const db = firebase.firestore().collection('orders').doc(key)
+
         const productsList = this.state.choosedProducts
-        db.add({
+        db.set({
             invoiceNumber: this.state.invoiceNumber + "/2022",
             carrier: this.state.choosedCarrier.key,
             contractor: {
@@ -227,15 +285,24 @@ class OrdersCreateScreen extends Component {
                 key: this.state.choosedContractor.key
             },
         }).then(function (docRef) {
-            const key = docRef.id
-            productsList.map((res, i) => {
-                const cureentDb = firebase.firestore().collection('ordersProducts')
-                cureentDb.add({
-                    order: key,
-                    product: res.key,
-                    amount: res.amount
+
+            firebase.firestore().collection('ordersProducts').where('order', '==', key).get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    if(doc.data().order === key){
+                        doc.ref.delete();
+                    }
+                });
+            }).then(() => {
+                productsList.map((res, i) => {
+                    const cureentDb = firebase.firestore().collection('ordersProducts')
+                    cureentDb.add({
+                        order: key,
+                        product: res.key,
+                        amount: res.amount
+                    })
                 })
             })
+
         })
 
 
@@ -243,6 +310,8 @@ class OrdersCreateScreen extends Component {
     }
 
     render() {
+
+
         return (
             <View>
 
@@ -292,7 +361,9 @@ class OrdersCreateScreen extends Component {
                                 style={styles.buttonDelete}
                             />
                         </View>
+
                         {
+
                             this.state.choosedProducts.map((res, i) => {
                                 return (
                                     <View style={styles.listView} key={i}>
@@ -315,10 +386,10 @@ class OrdersCreateScreen extends Component {
                         }
 
                         <Button
-                            title='Dodaj zamówienie'
+                            title='Edytuj zamówienie'
                             color='black'
                             onPress={() => this.saveOrder()}
-                            style={styles.buttonDelete}
+                            style={styles.editButton}
                         />
 
                     </View>
@@ -521,6 +592,9 @@ class OrdersCreateScreen extends Component {
     }
 
 
+
+
+
 }
 
 const styles = StyleSheet.create({
@@ -596,6 +670,20 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontWeight: "bold"
     },
+    containerColumnProducts: {
+        flex: 1,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'flex-start',
+        marginTop: 20,
+    },
+    itemColumnProduct: {
+        width: '70%',
+        paddingHorizontal: 5
+    },itemColumnClose: {
+        width: '30%',
+        paddingHorizontal: 5
+    },
     ProductsListTitle:{
         fontWeight: "bold"
     },
@@ -603,10 +691,10 @@ const styles = StyleSheet.create({
         opacity: 0.4
     },
     editButton:{
-        marginTop: 20
+      marginTop: 20
     }
 
 });
 
-export default OrdersCreateScreen;
+export default OrdersEditScreen;
 

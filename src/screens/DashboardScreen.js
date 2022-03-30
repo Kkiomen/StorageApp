@@ -26,7 +26,7 @@ const DashboardScreen = ({navigation}) => {
     }
 
     const onPressMenuOptionsOrder = () => {
-        navigation.navigate('OrderCreate')
+        navigation.navigate('OrdersList')
     }
 
     return (
