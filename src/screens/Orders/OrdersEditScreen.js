@@ -310,7 +310,12 @@ class OrdersEditScreen extends Component {
     }
 
     render() {
-
+        let orderType
+        if(this.state.editOrder.typeOrder == 2){
+            orderType = <Text style={styles.typeOrder}>TYP: Zamówienie</Text>;
+        }else{
+            orderType = <Text style={styles.typeOrder}>TYP: Przyjęcie</Text>
+        }
 
         return (
             <View>
@@ -320,6 +325,7 @@ class OrdersEditScreen extends Component {
 
                         <View style={styles.header}>
                             <Text>Faktura nr {this.state.invoiceNumber}/2022</Text>
+                            {orderType}
                         </View>
 
                         <Text style={styles.label}>Numer Faktury</Text>
@@ -692,6 +698,11 @@ const styles = StyleSheet.create({
     },
     editButton:{
       marginTop: 20
+    },
+    typeOrder:{
+        fontSize: 10,
+        fontWeight: "bold",
+        textTransform: "uppercase"
     }
 
 });

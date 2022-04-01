@@ -7,7 +7,8 @@ import {ListItem} from "react-native-elements";
 import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhite";
 import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
-
+import Select from 'react-native-select-plus';
+import {Picker} from '@react-native-picker/picker';
 class OrdersCreateScreen extends Component {
 
     constructor({props, navigation}) {
@@ -16,6 +17,7 @@ class OrdersCreateScreen extends Component {
         this.contractorsFireBase = firebase.firestore().collection('contractors')
         this.productsFireBase = firebase.firestore().collection('products')
         this.state = {
+            typeOrder: 2,
             modalVisibleCarrier: false,
             modalVisibleContractor: false,
             modalVisibleProduct: false,
@@ -45,6 +47,7 @@ class OrdersCreateScreen extends Component {
             choosedProducts: [],
             amountProduct: 0,
             lastOrder: null,
+
         }
     }
 
@@ -226,6 +229,8 @@ class OrdersCreateScreen extends Component {
                 name: this.state.choosedContractor.name,
                 key: this.state.choosedContractor.key
             },
+            typeOrder: this.state.typeOrder,
+            complete: false
         }).then(function (docRef) {
             const key = docRef.id
             productsList.map((res, i) => {
@@ -261,6 +266,17 @@ class OrdersCreateScreen extends Component {
                             keyboardType="numeric"
                         />
 
+                        <Text style={styles.label}>Typ zamówienia</Text>
+                        <Picker
+                            selectedValue={this.state.typeOrder}
+                            onValueChange={(itemValue, itemIndex) => {
+                                this.onValUpdate(itemValue,'typeOrder')
+                            }}
+                            style={styles.select}
+                        >
+                            <Picker.Item label="Normalne zamówienie" value="2"/>
+                            <Picker.Item label="Przyjęcie produktu" value="1"/>
+                        </Picker>
 
                         <View style={styles.containerColumn}>
                             <View style={styles.itemColumn}>
@@ -604,6 +620,15 @@ const styles = StyleSheet.create({
     },
     editButton:{
         marginTop: 20
+    },
+    select:{
+        backgroundColor: "white",
+        borderColor: '#e8e8e8',
+        borderWidth: 1,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 5,
+        paddingVertical: 10
     }
 
 });
