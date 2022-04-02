@@ -29,6 +29,10 @@ const DashboardScreen = ({navigation}) => {
         navigation.navigate('OrdersList')
     }
 
+    const onPressMenuOptionsPicking = (type) => {
+        navigation.navigate('PickingList', {type: type})
+    }
+
     return (
         <View style={styles.root}>
             <View style={styles.logo}>
@@ -73,6 +77,18 @@ const DashboardScreen = ({navigation}) => {
                 <Button
                     title='Zamówienia'
                     onPress={() => onPressMenuOptionsOrder()}
+                    color="black"
+                    style={styles.buttonMargin}
+                />
+                <Button
+                    title='Zamówienia do skompletowania (Zamówienie)'
+                    onPress={() => onPressMenuOptionsPicking('normal')}
+                    color="black"
+                    style={styles.buttonMargin}
+                />
+                <Button
+                    title='Zamówienia do skompletowania (Przyjęcie)'
+                    onPress={() => onPressMenuOptionsPicking('accept')}
                     color="black"
                     style={styles.buttonMargin}
                 />

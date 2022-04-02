@@ -4,7 +4,7 @@ import firebase from "../../../firebase";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import {ListItem} from "react-native-elements";
 import {isLoading} from "expo-font";
-class OrdersListScreen extends Component{
+class PickingListScreen extends Component{
 
     onValUpdate = (val, prop) => {
         const state = this.state;
@@ -24,9 +24,8 @@ class OrdersListScreen extends Component{
         };
     }
 
-
     componentDidMount() {
-        this.db.collection('orders').get().then(querySnapshot => {
+        this.db.collection('orders').where('typeOrder', '==',this.props.navigation.getParam('type')).get().then(querySnapshot => {
             const order = []
             querySnapshot.forEach((doc) => {
                 const { invoiceNumber,contractor, carrier,typeOrder} = doc.data()
@@ -89,12 +88,14 @@ class OrdersListScreen extends Component{
                         onPress={() => this.props.navigation.navigate('OrderCreate')}
                     />
                 </View>
+                <Text>{this.props.navigation.getParam('type') == 'accept' ? "PRZYJĘCIE" : "ZAMÓWIENIE"}</Text>
                 <CustomInput
                     placeholder="Numer faktury .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
                 />
+                <Text>{this.props.navigation.getParam('type')}</Text>
                 <ScrollView>
                     {
                         this.state.orderList.map((res, i) => {
@@ -102,7 +103,8 @@ class OrdersListScreen extends Component{
                                 <ListItem
                                     key={i}
                                     onPress={() => {
-                                        this.props.navigation.navigate('OrdersEdit', {
+
+                                        this.props.navigation.navigate('PickingCollect', {
                                             orderKey: res.key,
                                             order: res
                                         });
@@ -151,5 +153,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default OrdersListScreen;
+export default PickingListScreen;
 

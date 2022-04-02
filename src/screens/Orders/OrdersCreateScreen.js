@@ -17,7 +17,7 @@ class OrdersCreateScreen extends Component {
         this.contractorsFireBase = firebase.firestore().collection('contractors')
         this.productsFireBase = firebase.firestore().collection('products')
         this.state = {
-            typeOrder: 2,
+            typeOrder: 'normal',
             modalVisibleCarrier: false,
             modalVisibleContractor: false,
             modalVisibleProduct: false,
@@ -238,7 +238,8 @@ class OrdersCreateScreen extends Component {
                 cureentDb.add({
                     order: key,
                     product: res.key,
-                    amount: res.amount
+                    amount: res.amount,
+                    collectStatus: false
                 })
             })
         })
@@ -274,8 +275,8 @@ class OrdersCreateScreen extends Component {
                             }}
                             style={styles.select}
                         >
-                            <Picker.Item label="Normalne zamówienie" value="2"/>
-                            <Picker.Item label="Przyjęcie produktu" value="1"/>
+                            <Picker.Item label="Normalne zamówienie" value="normal"/>
+                            <Picker.Item label="Przyjęcie produktu" value="accept"/>
                         </Picker>
 
                         <View style={styles.containerColumn}>

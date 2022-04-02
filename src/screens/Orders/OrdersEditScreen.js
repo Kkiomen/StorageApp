@@ -271,6 +271,7 @@ class OrdersEditScreen extends Component {
     }
 
 
+
     saveOrder() {
 
         const key = this.state.editOrder.key
@@ -298,7 +299,8 @@ class OrdersEditScreen extends Component {
                     cureentDb.add({
                         order: key,
                         product: res.key,
-                        amount: res.amount
+                        amount: res.amount,
+                        collect: res.collectStatus
                     })
                 })
             })

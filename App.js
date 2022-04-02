@@ -13,6 +13,8 @@ import CompaniesEditScreen from "./src/screens/Companies/CompaniesEditScreen";
 import OrdersCreateScreen from "./src/screens/Orders/OrdersCreateScreen";
 import OrdersListScreen from "./src/screens/Orders/OrdersListScreen";
 import OrdersEditScreen from "./src/screens/Orders/OrdersEditScreen";
+import PickingListScreen from "./src/screens/Picking/PickingListScreen";
+import PickingCollectScreen from "./src/screens/Picking/PickingCollectScreen";
 
 const navigator = createStackNavigator(
     {
@@ -83,6 +85,18 @@ const navigator = createStackNavigator(
             navigationOptions: () => ({
                 title: "Edytuj zamówienie"
             })
+        },
+        PickingList: {
+            screen: PickingListScreen,
+            navigationOptions: () => ({
+                title: "Lista zamówienień do skompletowania",
+            }),
+        },
+        PickingCollect: {
+            screen: PickingCollectScreen,
+            navigationOptions: () => ({
+                title: "Kompletowanie zamówienia",
+            }),
         },
     },
     {
