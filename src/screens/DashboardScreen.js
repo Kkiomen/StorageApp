@@ -5,7 +5,7 @@ import {auth} from "../../firebase";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import {faBox, faCar, faSquare} from "@fortawesome/free-solid-svg-icons";
 import darkTheme from "@react-navigation/native/src/theming/DarkTheme";
-
+import { Col, Row, Grid } from "react-native-easy-grid";
 
 const DashboardScreen = ({navigation}) => {
 
@@ -33,6 +33,10 @@ const DashboardScreen = ({navigation}) => {
         navigation.navigate('PickingList', {type: type})
     }
 
+    const onPressMenuOptionsSearchProduct = () => {
+        navigation.navigate('SearchProduct')
+    }
+
     return (
         <View style={styles.root}>
             <View style={styles.logo}>
@@ -52,43 +56,75 @@ const DashboardScreen = ({navigation}) => {
 
             <ScrollView>
 
-            <Button
-                title='Produkty'
-                onPress={() => onPressMenuOptions()}
-                color="black"
-                style={styles.buttonMargin}
-            />
+            <View>
+                <Grid>
+                    <Col size={2} style={styles.menuButton}>
+                        <Button
+                            title='Produkty'
+                            onPress={() => onPressMenuOptions()}
+                            color="black"
+                            style={styles.buttonMargin}
+                        />
+                    </Col>
+                    <Col size={2} style={styles.menuButton}>
+                        <Button
+                            title='Przewoźnicy'
+                            onPress={() => onPressMenuOptionsContractor('CARRIERS')}
+                            color="black"
+                            style={styles.buttonMargin}
+                        />
+                    </Col>
+                </Grid>
+                <Grid>
+                    <Col size={2} style={styles.menuButton}>
+                        <Button
+                            title='Kontrachenci'
+                            onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
+                            color="black"
+                            style={styles.buttonMargin}
+                        />
+                    </Col>
+                    <Col size={2} style={styles.menuButton}>
+                        <Button
+                            title='Zamówienia'
+                            onPress={() => onPressMenuOptionsOrder()}
+                            color="black"
+                            style={styles.buttonMargin}
+                        />
+                    </Col>
+                </Grid>
+
+                <Grid>
+                    <Col size={5} style={styles.menuButton}>
+                        <Button
+                            title='Zamówienia do skompletowania (Zamówienie)'
+                            onPress={() => onPressMenuOptionsPicking('normal')}
+                            color="black"
+                            style={styles.buttonMargin}
+                        />
+                    </Col>
+                    <Col size={5} style={styles.menuButton}>
+
+                    </Col>
+                </Grid>
+            </View>
 
 
-            <Button
-                title='Przewoźnicy'
-                onPress={() => onPressMenuOptionsContractor('CARRIERS')}
-                color="black"
-                style={styles.buttonMargin}
-            />
 
-            <Button
-                title='Kontrachenci'
-                onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
-                color="black"
-                style={styles.buttonMargin}
-            />
-
-                <Button
-                    title='Zamówienia'
-                    onPress={() => onPressMenuOptionsOrder()}
-                    color="black"
-                    style={styles.buttonMargin}
-                />
-                <Button
-                    title='Zamówienia do skompletowania (Zamówienie)'
-                    onPress={() => onPressMenuOptionsPicking('normal')}
-                    color="black"
-                    style={styles.buttonMargin}
-                />
                 <Button
                     title='Zamówienia do skompletowania (Przyjęcie)'
                     onPress={() => onPressMenuOptionsPicking('accept')}
+                    color="black"
+                    style={styles.buttonMargin}
+                />
+
+
+
+
+
+                <Button
+                    title='Znajdź produkt'
+                    onPress={() => onPressMenuOptionsSearchProduct()}
                     color="black"
                     style={styles.buttonMargin}
                 />
@@ -134,6 +170,12 @@ const styles = StyleSheet.create({
     buttonMargin:{
         marginVertical: 20,
         marginBottom: 30,
+        marginTop: 30,
+        padding: 10
+    },
+    menuButton:{
+        padding: 10,
+        width: 100
     }
 });
 
