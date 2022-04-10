@@ -3,9 +3,20 @@ import {View, Text, StyleSheet, Button, ScrollView, Pressable} from 'react-nativ
 import CustomButton from "../components/CustomButton/CustomButton";
 import {auth} from "../../firebase";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import {faBox, faCar, faSquare} from "@fortawesome/free-solid-svg-icons";
+import {
+    faAddressBook,
+    faBox,
+    faBoxOpen,
+    faCar, faCartFlatbed, faClipboardList, faHandHolding, faHandHoldingDroplet, faHandHoldingHand,
+    faPlane, faSearch, faSignOut,
+    faSquare,
+    faTruckFast,
+    faTruckRampBox
+} from "@fortawesome/free-solid-svg-icons";
 import darkTheme from "@react-navigation/native/src/theming/DarkTheme";
 import { Col, Row, Grid } from "react-native-easy-grid";
+import ButtonWithIcon from "../components/DashboardMenu/ButtonWithIcon";
+import ButtonOutline from "../components/DashboardMenu/ButtonOutline";
 
 const DashboardScreen = ({navigation}) => {
 
@@ -19,7 +30,6 @@ const DashboardScreen = ({navigation}) => {
     const onPressMenuOptions = () => {
         navigation.navigate('ProductList')
     }
-
 
      const onPressMenuOptionsContractor = (type) => {
         navigation.navigate('CompaniesList', {type: type})
@@ -37,6 +47,10 @@ const DashboardScreen = ({navigation}) => {
         navigation.navigate('SearchProduct')
     }
 
+    const onPressMenuOptionsNewOrder = () => {
+        navigation.navigate('OrderCreate')
+    }
+
     return (
         <View style={styles.root}>
             <View style={styles.logo}>
@@ -44,90 +58,110 @@ const DashboardScreen = ({navigation}) => {
                 <Text style={styles.logoText}>Storage</Text>
             </View>
 
-
             <ScrollView horizontal={true}>
-                <Pressable style={styles.button} onPress={onPressMenuOptions}>
-                    <Text style={styles.buttonText}>Zamówienia do skompletowania</Text>
-                </Pressable>
+                <ButtonOutline
+                    text="Orders to complete"
+                    onPress={() => onPressMenuOptionsPicking('normal')}
+                />
+                <ButtonOutline
+                    text="Add new order"
+                    onPress={() => onPressMenuOptionsNewOrder()}
+                />
+                <ButtonOutline
+                    text="Sign out"
+                    onPress={() => onSignOutPressed()}
+                />
             </ScrollView>
 
-            <FontAwesomeIcon  icon={faCar} size={45} />
-            <Text>fdssfdsdfsdf</Text>
 
-            <ScrollView>
+            <ScrollView style={styles.container}>
 
-            <View>
+            <View style={styles.widthFull}>
                 <Grid>
-                    <Col size={2} style={styles.menuButton}>
-                        <Button
-                            title='Produkty'
-                            onPress={() => onPressMenuOptions()}
-                            color="black"
-                            style={styles.buttonMargin}
+                    <Col size={10}>
+                        <ButtonWithIcon
+                            text="Products"
+                            icon={faBox}
+                            onPress={onPressMenuOptions}
                         />
                     </Col>
-                    <Col size={2} style={styles.menuButton}>
-                        <Button
-                            title='Przewoźnicy'
+                </Grid>
+
+                <Grid>
+                    <Col size={6}>
+                        <ButtonWithIcon
+                            text="Carriers"
+                            icon={faTruckFast}
                             onPress={() => onPressMenuOptionsContractor('CARRIERS')}
-                            color="black"
-                            style={styles.buttonMargin}
                         />
                     </Col>
-                </Grid>
-                <Grid>
-                    <Col size={2} style={styles.menuButton}>
-                        <Button
-                            title='Kontrachenci'
+                    <Col size={6}>
+                        <ButtonWithIcon
+                            text="Contractors"
+                            icon={faAddressBook}
                             onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
-                            color="black"
-                            style={styles.buttonMargin}
                         />
                     </Col>
-                    <Col size={2} style={styles.menuButton}>
-                        <Button
-                            title='Zamówienia'
-                            onPress={() => onPressMenuOptionsOrder()}
-                            color="black"
-                            style={styles.buttonMargin}
+                </Grid>
+
+
+                <Grid>
+                    <Col size={1}>
+                        <ButtonWithIcon
+                            text="Manage Order"
+                            icon={faClipboardList}
+                            onPress={onPressMenuOptionsOrder}
+                        />
+                    </Col>
+                </Grid>
+
+
+                <Grid>
+                    <Col size={6}>
+                        <ButtonWithIcon
+                            text="To complete"
+                            textSmall = "order"
+                            icon={faCartFlatbed}
+                            onPress={() => onPressMenuOptionsPicking('normal')}
+                        />
+                    </Col>
+                    <Col size={6}>
+                        <ButtonWithIcon
+                            text="To complete"
+                            textSmall = "receipt of goods"
+                            icon={faTruckRampBox}
+                            onPress={() => onPressMenuOptionsPicking('accept')}
                         />
                     </Col>
                 </Grid>
 
                 <Grid>
-                    <Col size={5} style={styles.menuButton}>
-                        <Button
-                            title='Zamówienia do skompletowania (Zamówienie)'
-                            onPress={() => onPressMenuOptionsPicking('normal')}
-                            color="black"
-                            style={styles.buttonMargin}
+                    <Col size={6}>
+                        <ButtonWithIcon
+                            text="Find Product"
+                            icon={faSearch}
+                            onPress={() => onPressMenuOptionsSearchProduct()}
+                            position="left"
                         />
                     </Col>
-                    <Col size={5} style={styles.menuButton}>
-
+                    <Col size={4}>
+                        <ButtonWithIcon
+                            text="Sign out"
+                            icon={faSignOut}
+                            onPress={() => onSignOutPressed()}
+                            position="left"
+                        />
                     </Col>
                 </Grid>
+
             </View>
 
 
 
-                <Button
-                    title='Zamówienia do skompletowania (Przyjęcie)'
-                    onPress={() => onPressMenuOptionsPicking('accept')}
-                    color="black"
-                    style={styles.buttonMargin}
-                />
 
 
 
 
-
-                <Button
-                    title='Znajdź produkt'
-                    onPress={() => onPressMenuOptionsSearchProduct()}
-                    color="black"
-                    style={styles.buttonMargin}
-                />
 
             </ScrollView>
 
@@ -176,7 +210,11 @@ const styles = StyleSheet.create({
     menuButton:{
         padding: 10,
         width: 100
-    }
+    },
+    container:{
+        marginTop: 15,
+        alignSelf: 'stretch',
+    },
 });
 
 
