@@ -82,14 +82,14 @@ class ProductListScreen extends Component{
             <ScrollView style={styles.wrapper}>
                 <View style={styles.buttonAddView}>
                     <Button
-                        title='+ Dodaj produkt'
-                        style={styles.buttonAdd}
+                        title='+ Add new product'
+                        color="black"
                         onPress={() => this.navigateToProductAdd()}
                     />
                 </View>
 
                 <CustomInput
-                    placeholder="Szukaj .."
+                    placeholder="Search .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
@@ -142,9 +142,6 @@ const styles = StyleSheet.create({
     buttonAddView:{
       alignItems: "flex-end"
     },
-    buttonAdd:{
-        color: 'black'
-    }
 })
 
 export default ProductListScreen;

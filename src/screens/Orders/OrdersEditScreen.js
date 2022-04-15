@@ -314,9 +314,9 @@ class OrdersEditScreen extends Component {
     render() {
         let orderType
         if(this.state.editOrder.typeOrder == 2){
-            orderType = <Text style={styles.typeOrder}>TYP: Zamówienie</Text>;
+            orderType = <Text style={styles.typeOrder}>TYPE: Order</Text>;
         }else{
-            orderType = <Text style={styles.typeOrder}>TYP: Przyjęcie</Text>
+            orderType = <Text style={styles.typeOrder}>TYPE: Adoption of the product</Text>
         }
 
         return (
@@ -326,11 +326,11 @@ class OrdersEditScreen extends Component {
                     <View style={styles.formEle}>
 
                         <View style={styles.header}>
-                            <Text>Faktura nr {this.state.invoiceNumber}/2022</Text>
+                            <Text>Invoice no. {this.state.invoiceNumber}/2022</Text>
                             {orderType}
                         </View>
 
-                        <Text style={styles.label}>Numer Faktury</Text>
+                        <Text style={styles.label}>Invoice number</Text>
                         <CustomInput
                             placeholder=""
                             value={this.state.invoiceNumber}
@@ -342,7 +342,7 @@ class OrdersEditScreen extends Component {
                         <View style={styles.containerColumn}>
                             <View style={styles.itemColumn}>
                                 <Button
-                                    title='Dodaj przewoźnika'
+                                    title='Add Carrier'
                                     color="black"
                                     onPress={() => this.onValUpdate(!this.state.modalVisibleCarrier, 'modalVisibleCarrier')}
                                     style={styles.buttonDelete}
@@ -351,7 +351,7 @@ class OrdersEditScreen extends Component {
                             </View>
                             <View style={styles.itemColumn}>
                                 <Button
-                                    title='Dodaj kontrahenta'
+                                    title='Add contractor'
                                     color="black"
                                     onPress={() => this.onValUpdate(!this.state.modalVisibleContractor, 'modalVisibleContractor')}
                                     style={styles.buttonDelete}
@@ -363,7 +363,7 @@ class OrdersEditScreen extends Component {
 
                         <View style={styles.productsView}>
                             <Button
-                                title='+ Dodaj produkt'
+                                title='+ Add product'
                                 color="green"
                                 onPress={() => this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')}
                                 style={styles.buttonDelete}
@@ -378,7 +378,7 @@ class OrdersEditScreen extends Component {
                                         <Grid>
                                             <Col size={3}>
                                                 <Text style={styles.ProductsListTitle}>{res.name}</Text>
-                                                <Text style={styles.ProductsListAmount}>Ilość: {res.amount}</Text>
+                                                <Text style={styles.ProductsListAmount}>Amount: {res.amount}</Text>
                                             </Col>
                                             <Col size={1}>
                                                 <Button
@@ -394,7 +394,7 @@ class OrdersEditScreen extends Component {
                         }
 
                         <Button
-                            title='Edytuj zamówienie'
+                            title='Edit order'
                             color='black'
                             onPress={() => this.saveOrder()}
                             style={styles.editButton}
@@ -431,7 +431,7 @@ class OrdersEditScreen extends Component {
                             <View
                                 style={styles.modalCenter}>
                                 <CustomInput
-                                    placeholder="Szukaj .."
+                                    placeholder="Search .."
                                     value={this.state.searchCarrier}
                                     setValue={(val) => this.searchCarriers(val, 'searchCarrier')}
                                     style={styles.searchInput}
@@ -477,7 +477,7 @@ class OrdersEditScreen extends Component {
                             <View
                                 style={styles.modalCenter}>
                                 <CustomInput
-                                    placeholder="Szukaj .."
+                                    placeholder="Search .."
                                     value={this.state.searchContractor}
                                     setValue={(val) => this.searchCarriers(val, 'searchContractor')}
                                     style={styles.searchInput}
@@ -527,7 +527,7 @@ class OrdersEditScreen extends Component {
                             </View>
                             <View style={styles.modalCenter}>
                                 <CustomInput
-                                    placeholder="Szukaj .."
+                                    placeholder="Search .."
                                     value={this.state.searchProduct}
                                     setValue={(val) => this.searchProduct(val, 'searchProduct')}
                                     style={styles.searchInput}
@@ -575,7 +575,7 @@ class OrdersEditScreen extends Component {
                             </View>
                             <View style={styles.modalCenter}>
                                 <Text style={styles.textProductInfo}>Produkt: {this.state.currentProduct.name}</Text>
-                                <Text style={styles.label}>Podaj ilość</Text>
+                                <Text style={styles.label}>Amount</Text>
                                 <CustomInput
                                     placeholder=""
                                     value={this.state.amountProduct}
@@ -584,7 +584,7 @@ class OrdersEditScreen extends Component {
                                     style={styles.searchInput}
                                 />
                                 <Button
-                                    title='Dodaj produkt'
+                                    title='Add product'
                                     color="black"
                                     onPress={() => this.saveProduct()}
                                     style={styles.buttonDelete}

@@ -76,8 +76,8 @@ class CompaniesEditScreen extends Component{
         ) {
             Toast.show({
                 type: 'error',
-                text1: 'Wystąpił błąd',
-                text2: 'Wszystkie pola muszą zostać wypełnione',
+                text1: 'An error has occurred',
+                text2: 'All fields must be completed',
                 position: "bottom"
             });
 
@@ -97,7 +97,7 @@ class CompaniesEditScreen extends Component{
             }).catch((err) => {
                 Toast.show({
                     type: 'error',
-                    text1: 'Coś poszło nie tak. Spróbuj ponownie później',
+                    text1: 'Something went wrong. Try again later',
                 });
             });
         }
@@ -120,7 +120,7 @@ class CompaniesEditScreen extends Component{
                 <View style={styles.formEle}>
 
 
-                    <Text style={styles.label}>Nazwa firmy</Text>
+                    <Text style={styles.label}>Company name</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.name}
@@ -135,7 +135,7 @@ class CompaniesEditScreen extends Component{
                         style={styles.marginBottom}
                     />
 
-                    <Text style={styles.label}>Imię i nazwisko właściciela</Text>
+                    <Text style={styles.label}>Owner's firstname and secondname</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.owner}
@@ -143,30 +143,30 @@ class CompaniesEditScreen extends Component{
                         style={styles.marginBottom}
                     />
 
-                    <CustomHeaderForm title="Adres firmy" />
+                    <CustomHeaderForm title="Company address" />
 
-                    <Text style={styles.label}>Adres</Text>
+                    <Text style={styles.label}>Adress</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.address}
                         setValue={(val) => this.onValUpdate(val, 'address')}
                     />
 
-                    <Text style={styles.label}>Kod pocztowy</Text>
+                    <Text style={styles.label}>Zip code</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.postCode}
                         setValue={(val) => this.onValUpdate(val, 'postCode')}
                     />
 
-                    <Text style={styles.label}>Miasto</Text>
+                    <Text style={styles.label}>City</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.city}
                         setValue={(val) => this.onValUpdate(val, 'city')}
                     />
 
-                    <Text style={styles.label}>Kraj</Text>
+                    <Text style={styles.label}>Country</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.country}
@@ -174,9 +174,9 @@ class CompaniesEditScreen extends Component{
                         style={styles.marginBottom}
                     />
 
-                    <CustomHeaderForm title="Dane kontaktowe" />
+                    <CustomHeaderForm title="Contact details" />
 
-                    <Text style={styles.label}>Numer Telefonu</Text>
+                    <Text style={styles.label}>Phone Number</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.phone}
@@ -195,7 +195,7 @@ class CompaniesEditScreen extends Component{
 
                 <View style={styles.button}>
                     <Button
-                        title='Edytuj firmę'
+                        title='Edit company'
                         onPress={() => this.editCompanies()}
                         color="black"
                         style={styles.buttonCreate}

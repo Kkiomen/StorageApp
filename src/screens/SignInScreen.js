@@ -6,6 +6,7 @@ import CustomButon from "../components/CustomButton/CustomButton"
 import CustomButton from "../components/CustomButton/CustomButton"
 import * as firebase from "firebase/compat";
 import {auth} from "../../firebase";
+import CustomHeaderForm from "../components/CustomHeaderForm/CustomHeaderForm";
 
 
 const SignInScreen = ({props,navigation}) => {
@@ -30,10 +31,8 @@ const SignInScreen = ({props,navigation}) => {
             .signInWithEmailAndPassword(username, password)
             .then(userCredentials =>{
                 const user = userCredentials.user
-                console.log('Logged to' + user.email)
             })
             .catch(error => alert(error.message))
-        console.log('Navigate to Dashboard')
     }
 
     const onSignUpPressed = () => {
@@ -56,20 +55,11 @@ const SignInScreen = ({props,navigation}) => {
     return (
         <ScrollView showsVericalScrollIndicator={false}>
             <View style={styles.root}>
-
-                <Button
-                    title='Dodaj nową firmę'
-                    onPress={addNewCompanies}
-                    color="black"
-                    style={styles.buttonCreate}
-                />
-
                 <Image
                     source={Logo}
                     style={[styles.logo, {height: height * 0.3}]}
                     resizeMode="contain"
                 />
-
                 <CustomInput
                     placeholder="Username"
                     value={username}
@@ -81,28 +71,45 @@ const SignInScreen = ({props,navigation}) => {
                     setValue={setPassword}
                     secureTextEntry
                 />
-
                 <CustomButton
                     text="Sign in"
                     onPress={onSignInPressed}
                 />
 
-                <CustomButton
-                    text="Register"
-                    onPress={onSignUpPressed}
+                <CustomHeaderForm
+                    title="Or enter order code to check  information"
                 />
 
 
-                <CustomButton
-                    text="Register now"
-                    onPress={onSignUpPressed}
+                <CustomInput
+                    placeholder="Order code"
+                    value={password}
+                    setValue={setPassword}
+                    secureTextEntry
                 />
 
                 <CustomButton
-                    text="Forgot Password"
+                    text="Log in as a driver"
                     onPress={onSignInPressed}
-                    type="TERTIARY"
                 />
+
+
+                {/*<CustomButton*/}
+                {/*    text="Register"*/}
+                {/*    onPress={onSignUpPressed}*/}
+                {/*/>*/}
+
+
+                {/*<CustomButton*/}
+                {/*    text="Register now"*/}
+                {/*    onPress={onSignUpPressed}*/}
+                {/*/>*/}
+
+                {/*<CustomButton*/}
+                {/*    text="Forgot Password"*/}
+                {/*    onPress={onSignInPressed}*/}
+                {/*    type="TERTIARY"*/}
+                {/*/>*/}
             </View>
         </ScrollView>
     );

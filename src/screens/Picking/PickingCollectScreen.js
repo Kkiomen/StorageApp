@@ -311,9 +311,9 @@ class PickingCollectScreen extends Component {
     render() {
         let orderType
         if(this.state.editOrder.typeOrder == 2){
-            orderType = <Text style={styles.typeOrder}>TYP: Zamówienie</Text>;
+            orderType = <Text style={styles.typeOrder}>TYPE: Order</Text>;
         }else{
-            orderType = <Text style={styles.typeOrder}>TYP: Przyjęcie</Text>
+            orderType = <Text style={styles.typeOrder}>TYPE: Acceptance</Text>
         }
 
 
@@ -331,7 +331,7 @@ class PickingCollectScreen extends Component {
                     <View style={styles.formEle}>
 
                         <View style={styles.header}>
-                            <Text>Zamówienie nr {this.state.invoiceNumber}/2022</Text>
+                            <Text>Order number {this.state.invoiceNumber}/2022</Text>
                             {orderType}
                         </View>
 
@@ -347,7 +347,7 @@ class PickingCollectScreen extends Component {
                             </Col>
                         </Grid>
 
-                        {this.state.scanned && <Button title={'Kliknij aby rozpocząć skanowanie'} onPress={() => this.onValUpdate(false, 'scanned')} />}
+                        {this.state.scanned && <Button title={'Click to start scanning'} onPress={() => this.onValUpdate(false, 'scanned')} />}
 
                         <View style={styles.containerColumn}>
                             <View style={styles.itemColumn}>
@@ -367,8 +367,8 @@ class PickingCollectScreen extends Component {
                                         <Grid>
                                             <Col size={3}>
                                                 <Text style={styles.ProductsListTitle}>{res.name}</Text>
-                                                <Text style={styles.ProductsListAmount}>Ilość: {res.amount}</Text>
-                                                <Text style={styles.ProductsListAmount}>Typ: {res.type_package}</Text>
+                                                <Text style={styles.ProductsListAmount}>Amount: {res.amount}</Text>
+                                                <Text style={styles.ProductsListAmount}>Type: {res.type_package}</Text>
                                             </Col>
                                             <Col size={2}>
                                                 <PickingStatus collectStatus={res.collectStatus}/>

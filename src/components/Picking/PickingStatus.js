@@ -6,11 +6,11 @@ const PickingStatus = ({collectStatus}) => {
 
     if(collectStatus){
         return (
-            <Text style={[styles.statusCollect, styles.true]}>Skompletowane</Text>
+            <Text style={[styles.statusCollect, styles.true]}>Completed</Text>
         );
-    }else{
+    }else{r
         return (
-            <Text style={[styles.statusCollect, styles.false]}>Do Skompletowania</Text>
+            <Text style={[styles.statusCollect, styles.false]}>Incomplete</Text>
         );
     }
 

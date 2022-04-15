@@ -81,21 +81,12 @@ class PickingListScreen extends Component{
 
         return (
             <View style={styles.wrapper}>
-                <View style={styles.buttonAddView}>
-                    <Button
-                        title='+ Dodaj zamówienie'
-                        style={styles.buttonAdd}
-                        onPress={() => this.props.navigation.navigate('OrderCreate')}
-                    />
-                </View>
-                <Text>{this.props.navigation.getParam('type') == 'accept' ? "PRZYJĘCIE" : "ZAMÓWIENIE"}</Text>
                 <CustomInput
-                    placeholder="Numer faktury .."
+                    placeholder="Invoice number .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
                 />
-                <Text>{this.props.navigation.getParam('type')}</Text>
                 <ScrollView>
                     {
                         this.state.orderList.map((res, i) => {
@@ -111,10 +102,7 @@ class PickingListScreen extends Component{
                                     }}
                                     bottomDivider>
                                     <ListItem.Content>
-                                        <ListItem.Title>Faktura nr: {res.invoiceNumber}</ListItem.Title>
-                                        <ListItem.Subtitle>
-                                            {res.typeOrder == 'accept' ? "PRZYJĘCIE" : "ZAMÓWIENIE"} - {res.contractor.name}
-                                        </ListItem.Subtitle>
+                                        <ListItem.Title>Invoice no.: {res.invoiceNumber}</ListItem.Title>
                                     </ListItem.Content>
                                     <ListItem.Chevron
                                         color="black"

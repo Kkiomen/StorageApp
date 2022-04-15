@@ -1,6 +1,6 @@
 const types = {
-    CONTRACTORS: 'Kontrahenci',
-    CARRIERS: 'Przewoźnicy'
+    CONTRACTORS: 'Contractors',
+    CARRIERS: 'Carriers'
 }
 
 export default types

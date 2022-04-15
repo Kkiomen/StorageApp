@@ -84,13 +84,13 @@ class OrdersListScreen extends Component{
             <View style={styles.wrapper}>
                 <View style={styles.buttonAddView}>
                     <Button
-                        title='+ Dodaj zamówienie'
+                        title='+ Add new order'
                         style={styles.buttonAdd}
                         onPress={() => this.props.navigation.navigate('OrderCreate')}
                     />
                 </View>
                 <CustomInput
-                    placeholder="Numer faktury .."
+                    placeholder="Invoice number .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
@@ -109,7 +109,7 @@ class OrdersListScreen extends Component{
                                     }}
                                     bottomDivider>
                                     <ListItem.Content>
-                                        <ListItem.Title>Faktura nr: {res.invoiceNumber}</ListItem.Title>
+                                        <ListItem.Title>Invoice no.: {res.invoiceNumber}</ListItem.Title>
                                         <ListItem.Subtitle>
                                             {res.typeOrder == 'accept' ? "PRZYJĘCIE" : "ZAMÓWIENIE"} - {res.contractor.name}
                                         </ListItem.Subtitle>

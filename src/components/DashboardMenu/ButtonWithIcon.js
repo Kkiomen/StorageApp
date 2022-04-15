@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     },
     textLeft:{
         fontSize: 16,
-        textAlign: "center"
+        textAlign: "left"
     },
     colLeft:{
         justifyContent: 'center',

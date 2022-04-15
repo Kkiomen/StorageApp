@@ -29,7 +29,7 @@ const navigator = createStackNavigator(
       ProductsCreate: {
           screen: ProductsCreatScreen,
           navigationOptions: () => ({
-              title: "Dodaj produkt",
+              title: "Add new product",
           }),
       },
       TakePhoto: TakePhotoScreen,
@@ -42,67 +42,67 @@ const navigator = createStackNavigator(
       ProductList: {
           screen: ProductListScreen,
           navigationOptions: () => ({
-              title: "Lista produktów",
+              title: "List of products",
           }),
       },
       ProductEdit: {
           screen: ProductEditScreen,
           navigationOptions: () => ({
-              title: "Edytuj produkty",
+              title: "Edit a product",
           }),
       },
       CompaniesList: {
           screen: CompaniesListScreen,
           navigationOptions: () => ({
-              title: "Lista firm",
+              title: "List of companies",
           }),
       },
       CompaniesCreate:{
           screen: CompaniesCreateScreen,
           navigationOptions: () => ({
-              title: "Dodaj nową firmę"
+              title: "Add new company"
           })
       },
         CompaniesEdit:{
             screen: CompaniesEditScreen,
             navigationOptions: () => ({
-                title: "Edytuj firmę"
+                title: "Edit company"
             })
         },
         OrderCreate:{
             screen: OrdersCreateScreen,
             navigationOptions: () => ({
-                title: "Dodaj zamówienie"
+                title: "Add order"
             })
         },
         OrdersList:{
             screen: OrdersListScreen,
             navigationOptions: () => ({
-                title: "Lista zamówień"
+                title: "Order list"
             })
         },
         OrdersEdit:{
             screen: OrdersEditScreen,
             navigationOptions: () => ({
-                title: "Edytuj zamówienie"
+                title: "Edit order"
             })
         },
         PickingList: {
             screen: PickingListScreen,
             navigationOptions: () => ({
-                title: "Lista zamówienień do skompletowania",
+                title: "List of orders to complete",
             }),
         },
         PickingCollect: {
             screen: PickingCollectScreen,
             navigationOptions: () => ({
-                title: "Kompletowanie zamówienia",
+                title: "Order completion",
             }),
         },
         SearchProduct: {
             screen: SearchProductScreen,
             navigationOptions: () => ({
-                title: "Znajdź Produkt",
+                title: "Find Product",
             }),
         },
     },

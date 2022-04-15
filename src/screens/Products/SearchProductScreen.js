@@ -33,14 +33,16 @@ class SearchProductScreen extends Component {
     fetchCollection = (querySnapshot) => {
         const products = [];
         querySnapshot.forEach((res) => {
-            const {name, weight, type_package, sector, barcode} = res.data()
+            const {name, weight, type_package, sector, barcode, price_netto, price_brutto} = res.data()
             products.push({
                 key: res.id,
                 name,
                 weight,
                 sector,
                 barcode,
-                type_package
+                type_package,
+                price_netto,
+                price_brutto
             });
         });
         this.setState({
@@ -100,14 +102,14 @@ class SearchProductScreen extends Component {
         return (
             <ScrollView style={styles.wrapper}>
                 <CustomInput
-                    placeholder="Szukaj .."
+                    placeholder="Search .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
                 />
                 <View style={styles.col6}>
                     <Button
-                        title='Skanuj BARCODE'
+                        title='Scan BARCODE'
                         onPress={() =>  this.onValUpdate(!this.state.modalVisibleBarcode, 'modalVisibleBarcode')}
                         color="black"
                     />
@@ -115,9 +117,11 @@ class SearchProductScreen extends Component {
                         this.state.products.map((res, i) => {
                             return (
                                 <View style={styles.containerProductInfo}>
-                                    <InfoField label="Produkt" text={res.name} />
-                                    <InfoField label="Sektor" text={res.sector} />
-                                    <InfoField label="Typ" text={res.type_package} />
+                                    <InfoField label="Product" text={res.name} />
+                                    <InfoField label="Sector" text={res.sector} />
+                                    <InfoField label="Type" text={res.type_package} />
+                                    <InfoField label="Price (netto)" text={res.price_netto} />
+                                    <InfoField label="Price (brutto)" text={res.price_brutto} />
                                 </View>
                             );
                         })

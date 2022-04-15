@@ -26,6 +26,19 @@ class ProductEditScreen extends Component{
                 isLoading: false,
                 isDeleted: false
             };
+        }else{
+            this.state = {
+                key: '',
+                name: '',
+                sector: '',
+                barcode: '',
+                type_package: '',
+                weight: '',
+                price_netto: '',
+                price_brutto: '',
+                isLoading: false,
+                isDeleted: false
+            };
         }
     }
 
@@ -137,6 +150,7 @@ class ProductEditScreen extends Component{
     }
 
     render() {
+
         if(this.state.isLoading){
             return(
                 <View style={styles.loading}>
@@ -144,17 +158,18 @@ class ProductEditScreen extends Component{
                 </View>
             )
         }
+
         return (
             <ScrollView style={styles.container}>
                 <View style={styles.formEle}>
-                    <Text style={styles.label}>Nazwa produktu</Text>
+                    <Text style={styles.label}>Name</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.name}
                         setValue={(val) => this.onValUpdate(val, 'name')}
                     />
 
-                    <Text style={styles.label}>Sektor</Text>
+                    <Text style={styles.label}>Sector</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.sector}
@@ -172,7 +187,7 @@ class ProductEditScreen extends Component{
                         </View>
                         <View style={styles.col6}>
                             <Button
-                                title='Skanuj BARCODE'
+                                title='Scan BARCODE'
                                 onPress={() => this.scanBarCode()}
                                 color="black"
                             />
@@ -180,28 +195,28 @@ class ProductEditScreen extends Component{
                     </View>
 
 
-                    <Text style={styles.label}>Typ pakowania</Text>
+                    <Text style={styles.label}>Packing type</Text>
                     <CustomInput
-                        placeholder="Sztuka, Opakowanie, Paleta"
+                        placeholder="Piece, Packaging, Pallet"
                         value={this.state.type_package}
                         setValue={(val) => this.onValUpdate(val, 'type_package')}
                     />
 
-                    <Text style={styles.label}>Waga (g)</Text>
+                    <Text style={styles.label}>Weight (g)</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.weight}
                         setValue={(val) => this.onValUpdate(val, 'weight')}
                     />
 
-                    <Text style={styles.label}>Cena (netto)</Text>
+                    <Text style={styles.label}>Price (netto)</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.price_netto}
                         setValue={(val) => this.onValUpdate(val, 'price_netto')}
                     />
 
-                    <Text style={styles.label}>Cena (brutto)</Text>
+                    <Text style={styles.label}>Price (brutto)</Text>
                     <CustomInput
                         placeholder=""
                         value={this.state.price_brutto}
@@ -212,7 +227,7 @@ class ProductEditScreen extends Component{
 
                 <View style={styles.button}>
                     <Button
-                        title='Edytuj produkt'
+                        title='Edit product'
                         onPress={() => this.editProduct()}
                         color="black"
                         style={styles.buttonCreate}
@@ -226,7 +241,9 @@ class ProductEditScreen extends Component{
                         style={styles.buttonDelete}
                     />
                 </View>
+
                 <Toast style={styles.toast}/>
+
             </ScrollView>
         );
     }

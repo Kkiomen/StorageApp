@@ -1,20 +1,18 @@
 import React from "react"
-import {View, Text, StyleSheet, Button, ScrollView, Pressable} from 'react-native'
-import CustomButton from "../components/CustomButton/CustomButton";
+import {View, Text, StyleSheet, ScrollView} from 'react-native'
 import {auth} from "../../firebase";
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import {
     faAddressBook,
     faBox,
-    faBoxOpen,
-    faCar, faCartFlatbed, faClipboardList, faHandHolding, faHandHoldingDroplet, faHandHoldingHand,
-    faPlane, faSearch, faSignOut,
-    faSquare,
+    faCartFlatbed,
+    faClipboardList,
+    faSearch,
+    faSignOut,
     faTruckFast,
     faTruckRampBox
 } from "@fortawesome/free-solid-svg-icons";
-import darkTheme from "@react-navigation/native/src/theming/DarkTheme";
-import { Col, Row, Grid } from "react-native-easy-grid";
+import { Col, Grid } from "react-native-easy-grid";
 import ButtonWithIcon from "../components/DashboardMenu/ButtonWithIcon";
 import ButtonOutline from "../components/DashboardMenu/ButtonOutline";
 
@@ -77,6 +75,14 @@ const DashboardScreen = ({navigation}) => {
             <ScrollView style={styles.container}>
 
             <View style={styles.widthFull}>
+                <Col size={1}>
+                    <ButtonWithIcon
+                        text="Find Product"
+                        icon={faSearch}
+                        onPress={() => onPressMenuOptionsSearchProduct()}
+                        position="left"
+                    />
+                </Col>
                 <Grid>
                     <Col size={10}>
                         <ButtonWithIcon
@@ -136,15 +142,8 @@ const DashboardScreen = ({navigation}) => {
                 </Grid>
 
                 <Grid>
-                    <Col size={6}>
-                        <ButtonWithIcon
-                            text="Find Product"
-                            icon={faSearch}
-                            onPress={() => onPressMenuOptionsSearchProduct()}
-                            position="left"
-                        />
-                    </Col>
-                    <Col size={4}>
+
+                    <Col size={1}>
                         <ButtonWithIcon
                             text="Sign out"
                             icon={faSignOut}

@@ -5,7 +5,7 @@ const CompanyCardInfoWhite = ({company}) => {
     if(company.name === ''){
         return (
             <View style={[styles.infoCompanies, styles.empty]}>
-                <Text>Wybierz firmę</Text>
+                <Text>Choose a company</Text>
             </View>
         )
     }else{

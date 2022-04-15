@@ -109,14 +109,14 @@ class CompaniesListScreen extends Component{
 
                 <View style={styles.buttonAddView}>
                     <Button
-                        title='+ Dodaj Firmę'
+                        title='+ Add company'
                         style={styles.buttonAdd}
                         onPress={() => this.navigateToCompanyAdd()}
                     />
                 </View>
 
                 <CustomInput
-                    placeholder="Szukaj .."
+                    placeholder="Search .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
