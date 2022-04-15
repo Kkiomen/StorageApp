@@ -29,14 +29,16 @@ class OrdersListScreen extends Component{
         this.db.collection('orders').get().then(querySnapshot => {
             const order = []
             querySnapshot.forEach((doc) => {
-                const { invoiceNumber,contractor, carrier,typeOrder} = doc.data()
+                const { invoiceNumber,contractor, carrier,typeOrder,date,delivery} = doc.data()
                 const contractorKey = doc.data().contractor
                 let tmpOrderObject = {
                     key: doc.id,
                     invoiceNumber,
                     contractor,
                     carrier,
-                    typeOrder
+                    typeOrder,
+                    date,
+                    delivery
                 }
                 order.push(tmpOrderObject);
             });

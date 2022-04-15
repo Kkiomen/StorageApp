@@ -16,6 +16,7 @@ import OrdersEditScreen from "./src/screens/Orders/OrdersEditScreen";
 import PickingListScreen from "./src/screens/Picking/PickingListScreen";
 import PickingCollectScreen from "./src/screens/Picking/PickingCollectScreen";
 import SearchProductScreen from "./src/screens/Products/SearchProductScreen";
+import CarrierInformation from "./src/screens/Carriers/CarrierInformation";
 
 const navigator = createStackNavigator(
     {
@@ -103,6 +104,12 @@ const navigator = createStackNavigator(
             screen: SearchProductScreen,
             navigationOptions: () => ({
                 title: "Find Product",
+            }),
+        },
+        CarrierInformation: {
+            screen: CarrierInformation,
+            navigationOptions: () => ({
+                title: "Information about delivery",
             }),
         },
     },

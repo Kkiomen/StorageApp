@@ -36,14 +36,16 @@ const SignInScreen = ({props,navigation}) => {
     }
 
     const onSignUpPressed = () => {
-        auth
-            .createUserWithEmailAndPassword(username, password)
-            .then(userCredentials =>{
-                const user = userCredentials.user
-                console.log(user.email)
-            })
-            .catch(error => alert(error.message))
-        alert("Register done")
+        navigation.navigate('CarrierInformation');
+
+        // auth
+        //     .createUserWithEmailAndPassword(username, password)
+        //     .then(userCredentials =>{
+        //         const user = userCredentials.user
+        //         console.log(user.email)
+        //     })
+        //     .catch(error => alert(error.message))
+        // alert("Register done")
     }
 
     const addNewCompanies = () =>{
@@ -90,7 +92,7 @@ const SignInScreen = ({props,navigation}) => {
 
                 <CustomButton
                     text="Log in as a driver"
-                    onPress={onSignInPressed}
+                    onPress={onSignUpPressed()}
                 />
 
 

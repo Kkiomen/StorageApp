@@ -9,6 +9,7 @@ import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import Select from 'react-native-select-plus';
 import {Picker} from '@react-native-picker/picker';
+import CustomHeaderForm from "../../components/CustomHeaderForm/CustomHeaderForm";
 class OrdersCreateScreen extends Component {
 
     constructor({props, navigation}) {
@@ -22,6 +23,12 @@ class OrdersCreateScreen extends Component {
             modalVisibleContractor: false,
             modalVisibleProduct: false,
             invoiceNumber: '',
+            orderAddress: '',
+            orderPostCode: '',
+            orderCity: '',
+            orderCountry: '',
+            orderDateAdmission : '',
+            orderDateDelivery : '',
 
             carriers: [],
             choosedCarrier: {
@@ -229,6 +236,16 @@ class OrdersCreateScreen extends Component {
                 name: this.state.choosedContractor.name,
                 key: this.state.choosedContractor.key
             },
+            delivery: {
+                address: this.state.orderAddress,
+                postCode: this.state.orderPostCode,
+                city: this.state.orderCity,
+                country: this.state.orderCountry,
+            },
+            date:{
+                admission: this.state.orderDateAdmission,
+                delivery: this.state.orderDateDelivery
+            },
             typeOrder: this.state.typeOrder,
             complete: false
         }).then(function (docRef) {
@@ -266,6 +283,56 @@ class OrdersCreateScreen extends Component {
                             setValue={(val) => this.onValUpdateOnlyNumber(val, 'invoiceNumber')}
                             keyboardType="numeric"
                         />
+
+                        <CustomHeaderForm title="Date" />
+
+                        <Text style={styles.label}>Date of receipt of the product</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderDateAdmission}
+                            setValue={(val) => this.onValUpdate(val, 'orderDateAdmission')}
+                        />
+
+                        <Text style={styles.label}>Product delivery date</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderDateDelivery}
+                            setValue={(val) => this.onValUpdate(val, 'orderDateDelivery')}
+                        />
+
+
+
+                        <CustomHeaderForm title="Delivery" />
+
+                        <Text style={styles.label}>Address</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderAddress}
+                            setValue={(val) => this.onValUpdate(val, 'orderAddress')}
+                        />
+
+                        <Text style={styles.label}>PostCode</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderPostCode}
+                            setValue={(val) => this.onValUpdate(val, 'orderPostCode')}
+                        />
+
+                        <Text style={styles.label}>City</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderCity}
+                            setValue={(val) => this.onValUpdate(val, 'orderCity')}
+                        />
+
+                        <Text style={styles.label}>Country</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderCountry}
+                            setValue={(val) => this.onValUpdate(val, 'orderCountry')}
+                        />
+
+                        <CustomHeaderForm title="Type" />
 
                         <Text style={styles.label}>Order type</Text>
                         <Picker

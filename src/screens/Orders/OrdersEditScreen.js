@@ -7,6 +7,7 @@ import {ListItem} from "react-native-elements";
 import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhite";
 import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
+import CustomHeaderForm from "../../components/CustomHeaderForm/CustomHeaderForm";
 
 class OrdersEditScreen extends Component {
 
@@ -21,6 +22,12 @@ class OrdersEditScreen extends Component {
             modalVisibleContractor: false,
             modalVisibleProduct: false,
             invoiceNumber: '',
+            orderAddress: '',
+            orderPostCode: '',
+            orderCity: '',
+            orderCountry: '',
+            orderDateAdmission : '',
+            orderDateDelivery : '',
 
             carriers: [],
             choosedCarrier: {
@@ -55,9 +62,14 @@ class OrdersEditScreen extends Component {
     }
 
     componentDidMount() {
-        //Read and put info from order
         this.onValUpdate(this.props.navigation.getParam('order'), 'editOrder')
         this.onValUpdate(this.state.editOrder.invoiceNumber.slice(0, -5),'invoiceNumber')
+        this.onValUpdate(this.state.editOrder.delivery.address,'orderAddress')
+        this.onValUpdate(this.state.editOrder.delivery.postCode,'orderPostCode')
+        this.onValUpdate(this.state.editOrder.delivery.city,'orderCity')
+        this.onValUpdate(this.state.editOrder.delivery.country,'orderCountry')
+        this.onValUpdate(this.state.editOrder.date.admission,'orderDateAdmission')
+        this.onValUpdate(this.state.editOrder.date.delivery,'orderDateDelivery')
 
         this.unsubscribeCarriers = this.carriersFireBase.onSnapshot(this.fetchCollectionCarriers)
         this.unsubscribeContractors = this.contractorsFireBase.onSnapshot(this.fetchCollectionContractors)
@@ -281,6 +293,16 @@ class OrdersEditScreen extends Component {
         db.set({
             invoiceNumber: this.state.invoiceNumber + "/2022",
             carrier: this.state.choosedCarrier.key,
+            delivery: {
+                address: this.state.orderAddress,
+                postCode: this.state.orderPostCode,
+                city: this.state.orderCity,
+                country: this.state.orderCountry,
+            },
+            date:{
+                admission: this.state.orderDateAdmission,
+                delivery: this.state.orderDateDelivery
+            },
             contractor: {
                 name: this.state.choosedContractor.name,
                 key: this.state.choosedContractor.key
@@ -337,6 +359,56 @@ class OrdersEditScreen extends Component {
                             setValue={(val) => this.onValUpdateOnlyNumber(val, 'invoiceNumber')}
                             keyboardType="numeric"
                         />
+
+                        <CustomHeaderForm title="Date" />
+
+                        <Text style={styles.label}>Date of receipt of the product</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderDateAdmission}
+                            setValue={(val) => this.onValUpdate(val, 'orderDateAdmission')}
+                        />
+
+                        <Text style={styles.label}>Product delivery date</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderDateDelivery}
+                            setValue={(val) => this.onValUpdate(val, 'orderDateDelivery')}
+                        />
+
+
+
+                        <CustomHeaderForm title="Delivery" />
+
+                        <Text style={styles.label}>Address</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderAddress}
+                            setValue={(val) => this.onValUpdate(val, 'orderAddress')}
+                        />
+
+                        <Text style={styles.label}>PostCode</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderPostCode}
+                            setValue={(val) => this.onValUpdate(val, 'orderPostCode')}
+                        />
+
+                        <Text style={styles.label}>City</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderCity}
+                            setValue={(val) => this.onValUpdate(val, 'orderCity')}
+                        />
+
+                        <Text style={styles.label}>Country</Text>
+                        <CustomInput
+                            placeholder=""
+                            value={this.state.orderCountry}
+                            setValue={(val) => this.onValUpdate(val, 'orderCountry')}
+                        />
+
+                        <CustomHeaderForm title="Type" />
 
 
                         <View style={styles.containerColumn}>
