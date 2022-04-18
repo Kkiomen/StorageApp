@@ -3,7 +3,6 @@ import React from "react";
 
 const CardBorderProduct = ({title,status,products}) => {
     if(status){
-        console.log(products)
         return (
             <View style={styles.card}>
                 <Text style={styles.title}>{title}</Text>

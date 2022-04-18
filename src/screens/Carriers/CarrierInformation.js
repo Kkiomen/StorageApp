@@ -5,12 +5,15 @@ import InformationAboutDelivery from "../../components/TransportInformation/Info
 import CardBorder from "../../components/TransportInformation/CardBorder";
 import settings from "../../static/settings";
 import CardBorderProduct from "../../components/TransportInformation/CardBorderProduct";
+import AlertSuccess from "../../components/Alert/AlertSuccess";
+import AlertDanger from "../../components/Alert/AlertDanger";
+import CustomButton from "../../components/CustomButton/CustomButton";
 class CarrierInformation extends Component {
 
     //gg4yVIPUYsnfQWd05IEO
 
     constructor({props, navigation}) {
-        super();
+        super(props, navigation);
         this.array = []
         this.carriersFireBase = firebase.firestore().collection('carriers')
         this.contractorsFireBase = firebase.firestore().collection('contractors')
@@ -25,7 +28,8 @@ class CarrierInformation extends Component {
             AllProducts: [],
             orderProductKeys: [],
             loadedProduct: false,
-            fullWeight: 0
+            fullWeight: 0,
+            orderKey: navigation.getParam('orderKey')
         }
     }
 
@@ -38,7 +42,7 @@ class CarrierInformation extends Component {
 
 
         const db = firebase.firestore();
-        const orderKey = "sZY2j7u7MdwFUbzVN9aD";
+        const orderKey = this.state.orderKey;
         const arrayProduct = []
         const arrayProductKey = []
 
@@ -53,7 +57,6 @@ class CarrierInformation extends Component {
                 this.onValUpdate(carrier.data(), 'carrier');
             });
         });
-
 
         db.collection('ordersProducts')
             .where('order', '==', orderKey).get().then(querySnapshot => {
@@ -117,6 +120,17 @@ class CarrierInformation extends Component {
         this.setState(state);
     }
 
+    alertInfoRamp =  ()  =>{
+        if(this.state.loadedOrder){
+            if(this.state.order.ramp === 0){
+                return <AlertDanger text="You can't come to the ramp yet" />
+            }else{
+                return <AlertSuccess text={"Your turn has come. \nWelcome to rump number: " + this.state.order.ramp} />
+            }
+        }
+         // console.log(this.state.order.ramp)
+        //
+    }
 
     render() {
         let contractorInfo = "";
@@ -126,13 +140,14 @@ class CarrierInformation extends Component {
         if(this.state.loadedContractor){
             contractorInfo = this.state.contractor.name + "\n" + this.state.contractor.address  + "\n" + this.state.contractor.postCode + " " + this.state.contractor.city + "\n" + this.state.contractor.country;
             placeTakingOverTheGoodsInfo = this.state.order.date.admission + "\n" + this.state.order.delivery.address  + "\n" + this.state.order.delivery.postCode + " " + this.state.order.delivery.city + "\n" + this.state.order.delivery.country;
-
         }
         if(this.state.loadedProduct){
             weightInfo = (this.state.fullWeight / 1000) + "kg";
         }
         return (
             <ScrollView style={styles.container}>
+                {this.alertInfoRamp()}
+
                 <InformationAboutDelivery
                     contractor={this.state.order}
                     status={this.state.loadedOrder}

@@ -12,11 +12,13 @@ import CustomHeaderForm from "../components/CustomHeaderForm/CustomHeaderForm";
 const SignInScreen = ({props,navigation}) => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [orderCode, setOrderCode] = useState('')
 
 
     useEffect(() => {
         setUsername('kkiomen@kkiomen.pl')
         setPassword('kkiomen')
+        setOrderCode("sZY2j7u7MdwFUbzVN9aD")
         const unsubscribe = auth.onAuthStateChanged(user =>{
             if(user){
                 navigation.navigate('Dashboard')
@@ -36,16 +38,30 @@ const SignInScreen = ({props,navigation}) => {
     }
 
     const onSignUpPressed = () => {
-        navigation.navigate('CarrierInformation');
+       // navigation.navigate('CarrierInformation');
 
-        // auth
-        //     .createUserWithEmailAndPassword(username, password)
-        //     .then(userCredentials =>{
-        //         const user = userCredentials.user
-        //         console.log(user.email)
-        //     })
-        //     .catch(error => alert(error.message))
+        auth
+            .createUserWithEmailAndPassword(username, password)
+            .then(userCredentials =>{
+                const user = userCredentials.user
+                console.log(user.email)
+            })
+            .catch(error => alert(error.message))
         // alert("Register done")
+    }
+    const onCarrierInfoPressed = () =>{
+        const db = firebase.firestore();
+        const orderKey = orderCode;
+        let result = undefined;
+        db.collection('orders').doc(orderKey).get().then((order) => {
+            result = order.data();
+        });
+        if(result !== undefined){
+            navigation.navigate('CarrierInformation', {orderKey: orderCode});
+        }else{
+            alert('No such order exists')
+        }
+
     }
 
     const addNewCompanies = () =>{
@@ -85,14 +101,13 @@ const SignInScreen = ({props,navigation}) => {
 
                 <CustomInput
                     placeholder="Order code"
-                    value={password}
-                    setValue={setPassword}
-                    secureTextEntry
+                    value={orderCode}
+                    setValue={setOrderCode}
                 />
 
                 <CustomButton
                     text="Log in as a driver"
-                    onPress={onSignUpPressed()}
+                    onPress={() =>onCarrierInfoPressed()}
                 />
 
 
