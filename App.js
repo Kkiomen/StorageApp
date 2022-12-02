@@ -17,6 +17,8 @@ import PickingListScreen from "./src/screens/Picking/PickingListScreen";
 import PickingCollectScreen from "./src/screens/Picking/PickingCollectScreen";
 import SearchProductScreen from "./src/screens/Products/SearchProductScreen";
 import CarrierInformation from "./src/screens/Carriers/CarrierInformation";
+import {decode, encode} from 'base-64'
+
 
 const navigator = createStackNavigator(
     {
@@ -120,5 +122,10 @@ const navigator = createStackNavigator(
       },
     }
 );
+
+
+if (!global.btoa) {  global.btoa = encode }
+
+if (!global.atob) { global.atob = decode }
 
 export default createAppContainer(navigator);

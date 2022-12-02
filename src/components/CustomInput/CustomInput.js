@@ -15,7 +15,6 @@ const CustomInput = ({value, setValue, placeholder, secureTextEntry, keyboardTyp
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
@@ -26,9 +25,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 5,
         paddingVertical: 10
-    },
-    input: {
-
     }
 });
 

@@ -1,28 +1,30 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, Text, ActivityIndicator, ScrollView, Button} from "react-native";
 import firebase from "../../../firebase";
-import Toast from "react-native-toast-message";
+import Toast, {SuccessToast} from "react-native-toast-message";
 import CustomInput from "../../components/CustomInput/CustomInput";
+import { getFirestore, collection, query, getDoc,doc, updateDoc } from 'firebase/firestore'
 
 class ProductEditScreen extends Component{
 
     constructor({props,navigation}) {
         super();
 
-        this.ref = firebase.firestore().collection('products').doc(navigation.getParam('userkey'));
-       // console.log(this.ref);
-        let tmp = navigation.getParam('data');
+        const firestore = getFirestore()
+        this.ref = doc(firestore,'products',navigation.getParam('userkey'));
 
-        if(typeof tmp !== 'undefined'){
+        let dataProductFromNavigation = navigation.getParam('data');
+
+        if(typeof dataProductFromNavigation !== 'undefined'){
             this.state = {
-                key: tmp.key,
-                name: tmp.name,
-                sector: tmp.sector,
-                barcode: tmp.barcode,
-                type_package: tmp.type_package,
-                weight: tmp.weight,
-                price_netto: tmp.price_netto,
-                price_brutto: tmp.price_brutto,
+                key: dataProductFromNavigation.key,
+                name: dataProductFromNavigation.name,
+                sector: dataProductFromNavigation.sector,
+                barcode: dataProductFromNavigation.barcode,
+                type_package: dataProductFromNavigation.type_package,
+                weight: dataProductFromNavigation.weight,
+                price_netto: dataProductFromNavigation.price_netto,
+                price_brutto: dataProductFromNavigation.price_brutto,
                 isLoading: false,
                 isDeleted: false
             };
@@ -40,30 +42,34 @@ class ProductEditScreen extends Component{
                 isDeleted: false
             };
         }
+        this.getProduct();
     }
 
 
-    componentDidMount() {
-        this.ref.get().then((res) => {
-            if (res.exists) {
-                const element = res.data();
-                this.setState({
-                    key: res.id,
-                    name: element.name,
-                    sector:  element.sector,
-                    barcode: element.barcode,
-                    type_package: element.type_package,
-                    weight: element.weight,
-                    price_netto: element.price_netto,
-                    price_brutto: element.price_brutto,
-                    isLoading: false
-                });
-            } else {
-                this.props.navigation.navigate('ProductList')
-            }
-        });
+     componentDidMount() {
+        this.getProduct();
     }
 
+    async getProduct(){
+        const productSnap = await getDoc(this.ref);
+
+        if (productSnap.exists) {
+            const element = productSnap.data();
+            this.setState({
+                key: productSnap.id,
+                name: element.name,
+                sector: element.sector,
+                barcode: element.barcode,
+                type_package: element.type_package,
+                weight: element.weight,
+                price_netto: element.price_netto,
+                price_brutto: element.price_brutto,
+                isLoading: false
+            });
+        } else {
+            this.props.navigation.navigate('ProductList')
+        }
+    }
 
     scanBarCode = () => {
         this.props.navigation.navigate('BarcodeScan', {data: this.state, page: 'ProductEdit'})
@@ -109,7 +115,8 @@ class ProductEditScreen extends Component{
             this.setState({
                 isLoading: true,
             });
-            this.ref.set({
+
+            updateDoc(this.ref, {
                 name: this.state.name,
                 sector: this.state.sector,
                 barcode: this.state.barcode,
@@ -118,12 +125,20 @@ class ProductEditScreen extends Component{
                 price_brutto: this.state.price_brutto,
                 price_netto: this.state.price_netto
             }).then((res) => {
-                this.props.navigation.navigate('ProductList')
-            }).catch((err) => {
+                //this.props.navigation.navigate('ProductList')
+                this.setState({
+                    isLoading: false,
+                });
+                Toast.show({
+                    type: 'success',
+                    text1: 'Dane zostały zaktualizowane',
+                });
+            }).catch(error => {
                 Toast.show({
                     type: 'error',
                     text1: 'Coś poszło nie tak. Spróbuj ponownie później',
                 });
+                console.log(error)
             });
         }
     }

@@ -1,15 +1,16 @@
 import React, {Component, useState, useContext} from 'react'
 import {Button, StyleSheet, ScrollView, ActivityIndicator, View, TextInput, Platform, Text} from "react-native";
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import storage from "firebase/compat";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import Toast from 'react-native-toast-message';
+import {doc, setDoc, getDoc, addDoc, collection} from "firebase/firestore";
 
 class ProductsCreatScreen extends Component {
 
     constructor({props, navigation}) {
         super();
-        this.ref = firebase.firestore().collection('products');
+        this.productCollection = collection(db, "products");
         let tmp = navigation.getParam('data')
         if (typeof tmp !== 'undefined') {
             this.state = {
@@ -24,13 +25,13 @@ class ProductsCreatScreen extends Component {
             };
         } else {
             this.state = {
-                name: '',
-                sector: '',
+                name: 'Laser',
+                sector: 'A9',
                 barcode: '',
-                type_package: '',
-                weight: '',
-                price_netto: '',
-                price_brutto: '',
+                type_package: 'pcs',
+                weight: '54',
+                price_netto: '43.75',
+                price_brutto: '65.65',
                 isLoading: false
             };
         }
@@ -80,7 +81,7 @@ class ProductsCreatScreen extends Component {
             this.setState({
                 isLoading: true,
             });
-            this.ref.add({
+            addDoc(this.productCollection, {
                 name: this.state.name,
                 sector: this.state.sector,
                 barcode: this.state.barcode,
@@ -98,6 +99,10 @@ class ProductsCreatScreen extends Component {
                     price_netto: '',
                     price_brutto: '',
                     isLoading: false,
+                });
+                Toast.show({
+                    type: 'success',
+                    text1: 'Produkt został dodany',
                 });
                 this.props.navigation.navigate('ProductList')
             }).catch((err) => {

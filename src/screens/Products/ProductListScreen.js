@@ -1,46 +1,60 @@
 import React, {Component} from 'react'
 import {StyleSheet, ScrollView, ActivityIndicator, View, Button} from 'react-native';
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import { ListItem } from 'react-native-elements'
 import {SearchBar} from "react-native-screens";
 import CustomInput from "../../components/CustomInput/CustomInput";
+import { collection, getDocs, onSnapshot, doc } from "firebase/firestore";
+import Toast from "react-native-toast-message";
+
 class ProductListScreen extends Component{
 
-    constructor() {
+     constructor() {
         super();
-        this.docs = firebase.firestore().collection('products')
+        this.docs = getDocs(collection(db, "products"));
         this.state = {
             isLoading: true,
             products: [],
             AllProducts: [],
             searchText: ''
         };
+         this.fetchProducts();
     }
 
-    componentDidMount() {
-        this.unsubscribe = this.docs.onSnapshot(this.fetchCollection)
+
+    async componentDidMount() {
+        this.fetchProducts();
     }
 
-    componentWillUnmount(){
-        //this.unsubscribe();
-    }
 
-    fetchCollection = (querySnapshot) => {
+    async fetchProducts() {
         const products = [];
-        querySnapshot.forEach((res) => {
-            const { name, weight, type_package } = res.data()
-            products.push({
-                key: res.id,
-                name,
-                weight,
-                type_package
+        try {
+            const productsRef = collection(db, 'products');
+            let allProducts = await getDocs(productsRef);
+            allProducts.forEach((res) => {
+                const { name, weight, barcode, type_package } = res.data()
+                products.push({
+                    key: res.id,
+                    name,
+                    weight,
+                    barcode,
+                    type_package
+                });
+            })
+            this.setState({
+                products,
+                isLoading: false
             });
-        });
-        this.setState({
-            products,
-            isLoading: false
-        });
-        this.onValUpdate(products,'AllProducts')
+            this.onValUpdate(products,'AllProducts')
+
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania produktów, spróbuj ponownie później',
+            });
+        }
     }
 
     onValUpdate = (val, prop) => {
@@ -59,7 +73,7 @@ class ProductListScreen extends Component{
         }else{
             let newArray = this.state.products.filter(function (el)
                 {
-                    return el.name.toLowerCase().includes(state[prop].toLowerCase())
+                    return el.name.toLowerCase().includes(state[prop].toLowerCase()) || el.barcode.toLowerCase().includes(state[prop].toLowerCase())
                 }
             );
             this.onValUpdate(newArray, 'products');

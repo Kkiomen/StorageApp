@@ -3,8 +3,6 @@ import firebase from "../../../firebase";
 import {StyleSheet, View, ScrollView, Button, Text, Modal, Pressable} from "react-native";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import {BarCodeScanner} from "expo-barcode-scanner";
-import {ListItem} from "react-native-elements";
-import PickingProductInfo from "../../components/Picking/PickingProductInfo";
 import InfoField from "../../components/CustomInput/InfoField";
 
 class SearchProductScreen extends Component {
@@ -151,18 +149,10 @@ class SearchProductScreen extends Component {
                                     style={[styles.barcode]}
                                 />
                             </View>
-
-
                         </View>
                     </View>
                 </Modal>
-
-
             </ScrollView>
-
-
-
-
         );
     }
 }
