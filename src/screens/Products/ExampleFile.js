@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {StyleSheet, View, ScrollView, Button, Text, Modal, Pressable} from "react-native";
 import CustomInput from "../../components/CustomInput/CustomInput";
+import {doc, getDoc, getFirestore} from "firebase/firestore";
 
 class SearchProductScreen extends Component {
 
@@ -54,3 +55,62 @@ const styles = StyleSheet.create({
     },
 });
 export default SearchProductScreen;
+
+
+
+
+
+
+
+
+allOrdersProducts.forEach((res) => {
+    const productKey = res.data().product
+    arrayProductKey.push({
+        productKey: res.data().product,
+        amount: res.data().amount,
+    })
+}).then( () =>{
+    console.log(productKey)
+    const elements = []
+    const firestore = getFirestore()
+    arrayProductKey.map(async (resc, i) => {
+        let productCurrentKey = doc(firestore, 'products', res.productKey);
+        const productSnap = await getDoc(productCurrentKey);
+        if (productSnap.exists) {
+            const element = resc.data();
+            element['amount'] = res.amount
+            element['key'] = res.productKey
+            elements.push(element)
+            this.onValUpdate(elements, 'choosedProducts')
+        }
+    })
+});
+this.onValUpdate(arrayProductKey, 'orderProductKeys')
+
+
+
+db.collection('ordersProducts')
+    .where('order', '==', orderKey).get().then(querySnapshot => {
+    querySnapshot.forEach((doc) => {
+        const productKey = doc.data().product
+        arrayProductKey.push({
+            productKey: doc.data().product,
+            amount: doc.data().amount,
+        })
+    });
+}).then( () =>{
+    //console.log(arrayProductKey)
+    const elements = []
+    arrayProductKey.map((res, i) => {
+        db.collection('products').doc(res.productKey).get().then((resc) => {
+            const element = resc.data();
+            element['amount'] = res.amount
+            element['key'] = res.productKey
+            elements.push(element)
+        }).then(() =>{
+            this.onValUpdate(elements,'choosedProducts')
+            //console.log(this.state.choosedProducts)
+        })
+    })
+});
+this.onValUpdate(arrayProductKey, 'orderProductKeys')

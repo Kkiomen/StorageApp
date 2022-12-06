@@ -7,7 +7,7 @@ import { collection, getDocs, onSnapshot, doc } from "firebase/firestore";
 
 import {isLoading} from "expo-font";
 import Toast from "react-native-toast-message";
-class OrdersListScreen extends Component{
+class DocumentsListScreen extends Component{
 
     onValUpdate = (val, prop) => {
         const state = this.state;
@@ -17,42 +17,40 @@ class OrdersListScreen extends Component{
 
     constructor({props, navigation}) {
         super();
-        this.docs = getDocs(collection(db, "orders"));
+        this.docs = getDocs(collection(db, "documents"));
         this.state = {
-            orderList: [],
-            orderListAll: [],
+            documentList: [],
+            documentListAll: [],
             isLoading: false,
             searchText: '',
             isDeleted: false
         };
-        this.fetchOrder();
+        this.fetchDocument();
     }
 
 
     componentDidMount() {
-        this.fetchOrder();
+        this.fetchDocument();
     }
 
 
-    async fetchOrder() {
-        const orders = [];
+    async fetchDocument() {
+        const documents = [];
         try {
-            const productsRef = collection(db, 'orders');
-            let allOrders = await getDocs(productsRef);
-            allOrders.forEach((res) => {
-                const { invoiceNumber,contractor, carrier,typeOrder,date,delivery} = res.data()
-                orders.push({
+            const productsRef = collection(db, 'documents');
+            let allDocuments = await getDocs(productsRef);
+            allDocuments.forEach((res) => {
+                const { documentNumber,created_at, type,user} = res.data()
+                documents.push({
                     key: res.id,
-                    invoiceNumber,
-                    contractor,
-                    carrier,
-                    typeOrder,
-                    date,
-                    delivery
+                    documentNumber,
+                    created_at,
+                    type,
+                    user,
                 });
             })
-            this.onValUpdate(orders,'orderList')
-            this.onValUpdate(orders,'orderListAll')
+            this.onValUpdate(documents,'documentList')
+            this.onValUpdate(documents,'documentListAll')
             this.onValUpdate(true, 'isLoading')
         } catch (err) {
             console.log(err)
@@ -72,14 +70,14 @@ class OrdersListScreen extends Component{
         this.setState(state)
 
         if(state[prop].length === 0){
-            this.onValUpdate(this.state.orderListAll, 'orderList')
+            this.onValUpdate(this.state.documentListAll, 'documentList')
         }else{
-            let newArray = this.state.orderList.filter(function (el)
+            let newArray = this.state.documentList.filter(function (el)
                 {
-                    return el.invoiceNumber.toLowerCase().includes(state[prop].toLowerCase())
+                    return el.documentNumber.toLowerCase().includes(state[prop].toLowerCase())
                 }
             );
-            this.onValUpdate(newArray, 'orderList');
+            this.onValUpdate(newArray, 'documentList');
         }
     }
 
@@ -95,36 +93,29 @@ class OrdersListScreen extends Component{
 
         return (
             <View style={styles.wrapper}>
-                <View style={styles.buttonAddView}>
-                    <Button
-                        title='+ Add new order'
-                        style={styles.buttonAdd}
-                        onPress={() => this.props.navigation.navigate('OrderCreate')}
-                    />
-                </View>
                 <CustomInput
-                    placeholder="Invoice number .."
+                    placeholder="Document number .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
                 />
                 <ScrollView>
                     {
-                        this.state.orderList.map((res, i) => {
+                        this.state.documentList.map((res, i) => {
 
                             return (
                                 <ListItem
                                     id={i}
                                     onPress={() => {
-                                        this.props.navigation.navigate('OrdersEdit', {
-                                            orderKey: res.key
+                                        this.props.navigation.navigate('DocumentInfo', {
+                                            documentKey: res.key
                                         });
                                     }}
                                     bottomDivider>
                                     <ListItem.Content>
-                                        <ListItem.Title>Invoice no.: {res.invoiceNumber}</ListItem.Title>
+                                        <ListItem.Title>Invoice no. {res.documentNumber}/2023</ListItem.Title>
                                         <ListItem.Subtitle>
-                                            {res.typeOrder == 'accept' ? "PRZYJĘCIE" : "ZAMÓWIENIE"} - {res.contractor.name}
+                                            {res.type == 'ISSUES' ? "ISSUES" : "Acceptance"} - {res.created_at.toDate().toISOString().slice(0, 19).replace(/-/g, "/").replace("T", " ")}
                                         </ListItem.Subtitle>
                                     </ListItem.Content>
                                     <ListItem.Chevron
@@ -164,5 +155,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default OrdersListScreen;
+export default DocumentsListScreen;
 

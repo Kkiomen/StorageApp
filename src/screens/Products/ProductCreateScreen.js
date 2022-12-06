@@ -4,7 +4,7 @@ import firebase, {db} from "../../../firebase";
 import storage from "firebase/compat";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import Toast from 'react-native-toast-message';
-import {doc, setDoc, getDoc, addDoc, collection} from "firebase/firestore";
+import {addDoc, collection} from "firebase/firestore";
 
 class ProductsCreatScreen extends Component {
 
@@ -25,13 +25,13 @@ class ProductsCreatScreen extends Component {
             };
         } else {
             this.state = {
-                name: 'Laser',
-                sector: 'A9',
+                name: '',
+                sector: '',
                 barcode: '',
-                type_package: 'pcs',
-                weight: '54',
-                price_netto: '43.75',
-                price_brutto: '65.65',
+                type_package: '',
+                weight: '',
+                price_netto: '',
+                price_brutto: '',
                 isLoading: false
             };
         }
@@ -70,7 +70,7 @@ class ProductsCreatScreen extends Component {
                 position: "bottom"
             });
 
-        } else if (!this.isNum(this.state.price_netto) || !this.isNum(this.state.price_brutto)) {
+        } else if (!this.isNum(this.state.price_netto) || !this.isNum(this.state.price_brutto) || !this.isNum(this.state.weight)) {
             Toast.show({
                 type: 'error',
                 text1: 'Wystąpił błąd',
@@ -88,23 +88,14 @@ class ProductsCreatScreen extends Component {
                 type_package: this.state.type_package,
                 weight: this.state.weight,
                 price_brutto: this.state.price_brutto,
-                price_netto: this.state.price_netto
+                price_netto: this.state.price_netto,
+                quantity: 0
             }).then((res) => {
-                this.setState({
-                    name: '',
-                    sector: '',
-                    barcode: '',
-                    type_package: '',
-                    weight: '',
-                    price_netto: '',
-                    price_brutto: '',
-                    isLoading: false,
-                });
                 Toast.show({
                     type: 'success',
                     text1: 'Produkt został dodany',
                 });
-                this.props.navigation.navigate('ProductList')
+                this.props.navigation.navigate('ProductList',{state:{refresh:true}})
             }).catch((err) => {
                 Toast.show({
                     type: 'error',
@@ -172,6 +163,7 @@ class ProductsCreatScreen extends Component {
                     <CustomInput
                         placeholder=""
                         value={this.state.weight}
+                        keyboardType="numeric"
                         setValue={(val) => this.onValUpdate(val, 'weight')}
                     />
 
@@ -179,6 +171,7 @@ class ProductsCreatScreen extends Component {
                     <CustomInput
                         placeholder=""
                         value={this.state.price_netto}
+                        keyboardType="numeric"
                         setValue={(val) => this.onValUpdate(val, 'price_netto')}
                     />
 
@@ -186,18 +179,21 @@ class ProductsCreatScreen extends Component {
                     <CustomInput
                         placeholder=""
                         value={this.state.price_brutto}
+                        keyboardType="numeric"
                         setValue={(val) => this.onValUpdate(val, 'price_brutto')}
                     />
+
+                    <View style={styles.button}>
+                        <Button
+                            title='Add new product'
+                            onPress={() => this.addNewProduct()}
+                            color="black"
+                            style={styles.buttonCreate}
+                        />
+                    </View>
                 </View>
 
-                <View style={styles.button}>
-                    <Button
-                        title='Add new product'
-                        onPress={() => this.addNewProduct()}
-                        color="black"
-                        style={styles.buttonCreate}
-                    />
-                </View>
+
 
                 <Toast style={styles.toast}/>
 

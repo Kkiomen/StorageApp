@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Pressable} from "react-native";
 
 const CustomButton = ({onPress, text, type="PRIMARY", props}) => {
     return (
-        <Pressable onPress={onPress} style={[styles.container, styles[`container_${type}`]]}>
+        <Pressable onPressIn={onPress} style={[styles.container, styles[`container_${type}`]]}>
             <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
         </Pressable>
     );

@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, ActivityIndicator, ScrollView, Button} from "rea
 import firebase from "../../../firebase";
 import Toast, {SuccessToast} from "react-native-toast-message";
 import CustomInput from "../../components/CustomInput/CustomInput";
-import { getFirestore, collection, query, getDoc,doc, updateDoc } from 'firebase/firestore'
+import { getFirestore, deleteDoc, getDoc,doc, updateDoc } from 'firebase/firestore'
 
 class ProductEditScreen extends Component{
 
@@ -12,7 +12,6 @@ class ProductEditScreen extends Component{
 
         const firestore = getFirestore()
         this.ref = doc(firestore,'products',navigation.getParam('userkey'));
-
         let dataProductFromNavigation = navigation.getParam('data');
 
         if(typeof dataProductFromNavigation !== 'undefined'){
@@ -125,7 +124,6 @@ class ProductEditScreen extends Component{
                 price_brutto: this.state.price_brutto,
                 price_netto: this.state.price_netto
             }).then((res) => {
-                //this.props.navigation.navigate('ProductList')
                 this.setState({
                     isLoading: false,
                 });
@@ -152,7 +150,7 @@ class ProductEditScreen extends Component{
             bottomOffset: 150,
             visibilityTime: 1000,
             onPress: () =>{
-                this.ref.delete().then((res) => {
+                deleteDoc(this.ref).then((res) => {
                     this.props.navigation.navigate('Dashboard')
                 }).catch((err) => {
                     Toast.show({
@@ -240,7 +238,7 @@ class ProductEditScreen extends Component{
 
                 </View>
 
-                <View style={styles.button}>
+                <View style={[styles.button, styles.buttonOption]}>
                     <Button
                         title='Edit product'
                         onPress={() => this.editProduct()}
@@ -248,7 +246,7 @@ class ProductEditScreen extends Component{
                         style={styles.buttonCreate}
                     />
                 </View>
-                <View style={styles.buttonDeleteRow}>
+                <View style={[styles.buttonDeleteRow, styles.buttonOption]}>
                     <Button
                         title='Usuń produkt'
                         onPress={() => this.deleteProduct()}
@@ -284,6 +282,9 @@ const styles = StyleSheet.create({
       marginVertical: 20,
       marginTop: 20,
     },
+    buttonOption:{
+        paddingHorizontal: 10
+    }
 });
 
 

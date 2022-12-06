@@ -6,7 +6,7 @@ import {
     faAddressBook,
     faBox,
     faCartFlatbed,
-    faClipboardList,
+    faClipboardList, faFileLines, faRightFromBracket, faRightToBracket,
     faSearch,
     faSignOut,
     faTruckFast,
@@ -15,6 +15,8 @@ import {
 import { Col, Grid } from "react-native-easy-grid";
 import ButtonWithIcon from "../components/DashboardMenu/ButtonWithIcon";
 import ButtonOutline from "../components/DashboardMenu/ButtonOutline";
+
+
 
 const DashboardScreen = ({navigation}) => {
 
@@ -25,7 +27,7 @@ const DashboardScreen = ({navigation}) => {
                 navigation.navigate('SignIn')
             })
     }
-    const onPressMenuOptions = () => {
+    const onPressMenuOptionsProductList = () => {
         navigation.navigate('ProductList')
     }
 
@@ -41,6 +43,15 @@ const DashboardScreen = ({navigation}) => {
         navigation.navigate('PickingList', {type: type})
     }
 
+    const onPressMenuOptionsAcceptance = (type) => {
+        if(type === 'ISSUES'){
+            navigation.navigate('IssuesCreate', {type: type})
+        }else{
+            navigation.navigate('AcceptanceCreate', {type: type})
+        }
+
+    }
+
     const onPressMenuOptionsSearchProduct = () => {
         navigation.navigate('SearchProduct')
     }
@@ -49,122 +60,147 @@ const DashboardScreen = ({navigation}) => {
         navigation.navigate('OrderCreate')
     }
 
+    const onPressMenuOptionsDocument = () => {
+        navigation.navigate('DocumentsList')
+    }
+
     return (
         <View style={styles.root}>
             <View style={styles.logo}>
                 <FontAwesomeIcon styles={styles.logoIcon} icon={faBox} size={45} />
                 <Text style={styles.logoText}>Storage</Text>
             </View>
-
-            <ScrollView horizontal={true}>
-                <ButtonOutline
-                    text="Orders to complete"
-                    onPress={() => onPressMenuOptionsPicking('normal')}
-                />
-                <ButtonOutline
-                    text="Add new order"
-                    onPress={() => onPressMenuOptionsNewOrder()}
-                />
-                <ButtonOutline
-                    text="Sign out"
-                    onPress={() => onSignOutPressed()}
-                />
-            </ScrollView>
+            <ScrollView>
 
 
-            <ScrollView style={styles.container}>
-
-            <View style={styles.widthFull}>
-                <Col size={1}>
-                    <ButtonWithIcon
-                        text="Find Product"
-                        icon={faSearch}
-                        onPress={() => onPressMenuOptionsSearchProduct()}
-                        position="left"
+                <ScrollView horizontal={true}>
+                    <ButtonOutline
+                        text="Orders to complete"
+                        onPress={() => onPressMenuOptionsPicking('normal')}
                     />
-                </Col>
-                <Grid>
-                    <Col size={10}>
-                        <ButtonWithIcon
-                            text="Products"
-                            icon={faBox}
-                            onPress={onPressMenuOptions}
-                        />
-                    </Col>
-                </Grid>
+                    <ButtonOutline
+                        text="Add new order"
+                        onPress={() => onPressMenuOptionsNewOrder()}
+                    />
+                    <ButtonOutline
+                        text="Sign out"
+                        onPress={() => onSignOutPressed()}
+                    />
+                </ScrollView>
 
-                <Grid>
-                    <Col size={6}>
-                        <ButtonWithIcon
-                            text="Carriers"
-                            icon={faTruckFast}
-                            onPress={() => onPressMenuOptionsContractor('CARRIERS')}
-                        />
-                    </Col>
-                    <Col size={6}>
-                        <ButtonWithIcon
-                            text="Contractors"
-                            icon={faAddressBook}
-                            onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
-                        />
-                    </Col>
-                </Grid>
+                <ScrollView style={styles.container}>
+                    <View style={styles.widthFull}>
 
-
-                <Grid>
-                    <Col size={1}>
-                        <ButtonWithIcon
-                            text="Manage Order"
-                            icon={faClipboardList}
-                            onPress={onPressMenuOptionsOrder}
-                        />
-                    </Col>
-                </Grid>
+                            <Col size={12}>
+                                <ButtonWithIcon
+                                    text="Find Product"
+                                    icon={faSearch}
+                                    onPress={() => onPressMenuOptionsSearchProduct()}
+                                    position="left"
+                                />
+                            </Col>
+                            <Col size={12}>
+                                <ButtonWithIcon
+                                    text="Products"
+                                    icon={faBox}
+                                    onPress={() => onPressMenuOptionsProductList()}
+                                />
+                            </Col>
 
 
-                <Grid>
-                    <Col size={6}>
-                        <ButtonWithIcon
-                            text="To complete"
-                            textSmall = "order"
-                            icon={faCartFlatbed}
-                            onPress={() => onPressMenuOptionsPicking('normal')}
-                        />
-                    </Col>
-                    <Col size={6}>
-                        <ButtonWithIcon
-                            text="To complete"
-                            textSmall = "receipt of goods"
-                            icon={faTruckRampBox}
-                            onPress={() => onPressMenuOptionsPicking('accept')}
-                        />
-                    </Col>
-                </Grid>
+                        <Grid>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="Acceptance"
+                                    textSmall = "of goods"
+                                    icon={faRightToBracket}
+                                    onPress={() => onPressMenuOptionsAcceptance('ADOPTION')}
+                                />
+                            </Col>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="Issues"
+                                    textSmall = "of goods"
+                                    icon={faRightFromBracket}
+                                    onPress={() => onPressMenuOptionsAcceptance('ISSUES')}
+                                />
+                            </Col>
+                        </Grid>
 
-                <Grid>
-
-                    <Col size={1}>
-                        <ButtonWithIcon
-                            text="Sign out"
-                            icon={faSignOut}
-                            onPress={() => onSignOutPressed()}
-                            position="left"
-                        />
-                    </Col>
-                </Grid>
-
-            </View>
-
-
-
-
-
+                        <Grid>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="Carriers"
+                                    icon={faTruckFast}
+                                    onPress={() => onPressMenuOptionsContractor('CARRIERS')}
+                                />
+                            </Col>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="Contractors"
+                                    icon={faAddressBook}
+                                    onPress={() => onPressMenuOptionsContractor('CONTRACTORS')}
+                                />
+                            </Col>
+                        </Grid>
 
 
+                        <Grid>
+                            <Col size={1}>
+                                <ButtonWithIcon
+                                    text="Manage Order"
+                                    icon={faClipboardList}
+                                    onPress={onPressMenuOptionsOrder}
+                                />
+                            </Col>
+                        </Grid>
+
+
+                        <Grid>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="To complete"
+                                    textSmall = "order"
+                                    icon={faCartFlatbed}
+                                    onPress={() => onPressMenuOptionsPicking('normal')}
+                                />
+                            </Col>
+                            <Col size={6}>
+                                <ButtonWithIcon
+                                    text="To complete"
+                                    textSmall = "receipt of goods"
+                                    icon={faTruckRampBox}
+                                    onPress={() => onPressMenuOptionsPicking('accept')}
+                                />
+                            </Col>
+                        </Grid>
+
+                        <Grid>
+                            <Col size={1}>
+                                <ButtonWithIcon
+                                    text="Documents"
+                                    icon={faFileLines}
+                                    onPress={onPressMenuOptionsDocument}
+                                />
+                            </Col>
+                        </Grid>
+
+                        <Grid>
+
+                            <Col size={1}>
+                                <ButtonWithIcon
+                                    text="Sign out"
+                                    icon={faSignOut}
+                                    onPress={() => onSignOutPressed()}
+                                    position="left"
+                                />
+                            </Col>
+                        </Grid>
+
+                    </View>
+                </ScrollView>
 
             </ScrollView>
-
-
             {/*<Text>Logged</Text>*/}
             {/*<CustomButton*/}
             {/*    text="Log out"*/}
@@ -179,6 +215,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         marginTop: 30,
+        marginBottom: 30,
+        paddingBottom: 40
     },
     logo:{
       flexDirection: 'row',
@@ -213,6 +251,7 @@ const styles = StyleSheet.create({
     container:{
         marginTop: 15,
         alignSelf: 'stretch',
+        marginBottom: 30
     },
 });
 

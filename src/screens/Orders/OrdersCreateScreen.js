@@ -2,21 +2,24 @@ import React, {Component} from 'react'
 import {Alert, Modal, StyleSheet, Text, Pressable, View, ScrollView, Button} from "react-native";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import CustomButton from "../../components/CustomButton/CustomButton";
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import {ListItem} from "react-native-elements";
 import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhite";
 import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import Select from 'react-native-select-plus';
+import {addDoc, collection, getDocs} from "firebase/firestore";
 import {Picker} from '@react-native-picker/picker';
 import CustomHeaderForm from "../../components/CustomHeaderForm/CustomHeaderForm";
+import Toast from "react-native-toast-message";
 class OrdersCreateScreen extends Component {
 
     constructor({props, navigation}) {
         super();
-        this.carriersFireBase = firebase.firestore().collection('carriers')
-        this.contractorsFireBase = firebase.firestore().collection('contractors')
-        this.productsFireBase = firebase.firestore().collection('products')
+        this.carriersCollection = collection(db, "carriers");
+        this.contractorsCollection = collection(db, "contractors");
+        this.productsCollection = collection(db, "products");
+        this.orderCollection = collection(db, "orders");
         this.state = {
             typeOrder: 'normal',
             modalVisibleCarrier: false,
@@ -56,74 +59,102 @@ class OrdersCreateScreen extends Component {
             lastOrder: null,
 
         }
+        this.fetchProducts();
+        this.fetchCarriers();
+        this.fetchContractors();
     }
 
     componentDidMount() {
-        this.unsubscribeCarriers = this.carriersFireBase.onSnapshot(this.fetchCollectionCarriers)
-        this.unsubscribeContractors = this.contractorsFireBase.onSnapshot(this.fetchCollectionContractors)
-        this.unsubscribeProducts = this.productsFireBase.onSnapshot(this.fetchCollectionProducts)
+        this.fetchProducts();
+        this.fetchCarriers();
+        this.fetchContractors();
     }
 
-
-    fetchCollectionCarriers = (querySnapshot) => {
-        const carriers = [];
-        querySnapshot.forEach((res) => {
-            const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
-            carriers.push({
-                key: res.id,
-                name, address, postCode, city, country, phone, nip, email, owner
-            });
-        });
-        this.setState({
-            carriers,
-        });
-        if (typeof carriers !== 'undefined' && carriers.length === 0) {
-            this.setState({
-                isLoading: false
-            });
-        }
-        this.onValUpdate(carriers, 'AllCarriers')
-    }
-
-    fetchCollectionContractors = (querySnapshot) => {
-        const contractors = [];
-        querySnapshot.forEach((res) => {
-            const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
-            contractors.push({
-                key: res.id,
-                name, address, postCode, city, country, phone, nip, email, owner
-            });
-        });
-        this.setState({
-            contractors,
-        });
-        if (typeof contractors !== 'undefined' && contractors.length === 0) {
-            this.setState({
-                isLoading: false
-            });
-        }
-        this.onValUpdate(contractors, 'AllContractors')
-    }
-
-
-    fetchCollectionProducts = (querySnapshot) => {
+    async fetchProducts() {
         const products = [];
-        querySnapshot.forEach((res) => {
-            const {name, sector, barcode, type_package, weight, price_netto, price_brutto} = res.data()
-            products.push({
-                key: res.id,
-                name, sector, barcode, type_package, weight, price_netto, price_brutto
-            });
-        });
-        this.setState({
-            products,
-        });
-        if (typeof products !== 'undefined' && products.length === 0) {
+        try {
+            let allProducts = await getDocs(this.productsCollection);
+            allProducts.forEach((res) => {
+                const {name, sector, barcode, type_package, weight, price_netto, price_brutto} = res.data()
+                products.push({
+                    key: res.id,
+                    name, sector, barcode, type_package, weight, price_netto, price_brutto
+                });
+            })
             this.setState({
-                isLoading: false
+                products,
+            });
+            if (typeof products !== 'undefined' && products.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(products, 'AllProducts')
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania produktów, spróbuj ponownie później',
             });
         }
-        this.onValUpdate(products, 'AllProducts')
+    }
+
+    async fetchCarriers() {
+        const carriers = [];
+        try {
+            let allCarriers = await getDocs(this.carriersCollection);
+            allCarriers.forEach((res) => {
+                const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
+                carriers.push({
+                    key: res.id,
+                    name, address, postCode, city, country, phone, nip, email, owner
+                });
+            })
+            this.setState({
+                carriers,
+            });
+            if (typeof carriers !== 'undefined' && carriers.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(carriers, 'AllCarriers')
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania dostawców, spróbuj ponownie później',
+            });
+        }
+    }
+
+    async fetchContractors() {
+        const contractors = [];
+        try {
+            let allContractors = await getDocs(this.contractorsCollection);
+            allContractors.forEach((res) => {
+                const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
+                contractors.push({
+                    key: res.id,
+                    name, address, postCode, city, country, phone, nip, email, owner
+                });
+            })
+            this.setState({
+                contractors,
+            });
+            if (typeof contractors !== 'undefined' && contractors.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(contractors, 'AllContractors')
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania kontrahentów, spróbuj ponownie później',
+            });
+        }
     }
 
 
@@ -182,6 +213,7 @@ class OrdersCreateScreen extends Component {
         const state = this.state
         state[prop] = val
         this.setState(state)
+        this.fetchProducts();
 
         if (state[prop].length === 0) {
             this.onValUpdate(this.state.AllProducts, 'products')
@@ -227,10 +259,9 @@ class OrdersCreateScreen extends Component {
     }
 
     saveOrder() {
-        const db = firebase.firestore().collection('orders')
         const productsList = this.state.choosedProducts
-        db.add({
-            invoiceNumber: this.state.invoiceNumber + "/2022",
+        addDoc(this.orderCollection,{
+            invoiceNumber: this.state.invoiceNumber + "/2023",
             carrier: this.state.choosedCarrier.key,
             contractor: {
                 name: this.state.choosedContractor.name,
@@ -251,8 +282,8 @@ class OrdersCreateScreen extends Component {
         }).then(function (docRef) {
             const key = docRef.id
             productsList.map((res, i) => {
-                const cureentDb = firebase.firestore().collection('ordersProducts')
-                cureentDb.add({
+                let ordersProductsCollection = collection(db, "ordersProducts");
+                addDoc(ordersProductsCollection,{
                     order: key,
                     product: res.key,
                     amount: res.amount,
@@ -273,7 +304,7 @@ class OrdersCreateScreen extends Component {
                     <View style={styles.formEle}>
 
                         <View style={styles.header}>
-                            <Text>Invoice no. {this.state.invoiceNumber}/2022</Text>
+                            <Text>Invoice no. {this.state.invoiceNumber}/2023</Text>
                         </View>
 
                         <Text style={styles.label}>Invoice number</Text>

@@ -2,22 +2,42 @@ import React, {Component} from 'react'
 import {Alert, Modal, StyleSheet, Text, Pressable, View, ScrollView, Button} from "react-native";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import CustomButton from "../../components/CustomButton/CustomButton";
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import {ListItem} from "react-native-elements";
 import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhite";
 import ModalSearch from "../../components/Modal/ModalSearch";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import CustomHeaderForm from "../../components/CustomHeaderForm/CustomHeaderForm";
+import {
+    collection,
+    getDocs,
+    where,
+    query,
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    deleteDoc,
+    addDoc
+} from "firebase/firestore";
+import Toast from "react-native-toast-message";
 
 class OrdersEditScreen extends Component {
 
     constructor({props, navigation}) {
         super();
         this.array = []
-        this.carriersFireBase = firebase.firestore().collection('carriers')
-        this.contractorsFireBase = firebase.firestore().collection('contractors')
-        this.productsFireBase = firebase.firestore().collection('products')
+        const firestore = getFirestore()
+        const orderIdKey = navigation.getParam('orderKey');
+        this.orderDoc = doc(firestore,'orders',orderIdKey);
+        this.carriersCollection = collection(db, "carriers");
+        this.contractorsCollection = collection(db, "contractors");
+        this.productsCollection = collection(db, "products");
+        this.orderCollection = collection(db, "orders");
+        this.ordersProductsCollection = collection(db, "ordersProducts");
+
         this.state = {
+            keyOrder: orderIdKey,
             modalVisibleCarrier: false,
             modalVisibleContractor: false,
             modalVisibleProduct: false,
@@ -57,131 +77,192 @@ class OrdersEditScreen extends Component {
 
             editOrder: {},
             productsList: [],
-            orderProductKeys: []
+            orderProductKeys: [],
+            order: null
         }
+        this.getOrder();
+        this.fetchProducts();
+        this.fetchCarriers();
+        this.fetchContractors();
+        this.orderProduct();
     }
 
     componentDidMount() {
-        this.onValUpdate(this.props.navigation.getParam('order'), 'editOrder')
-        this.onValUpdate(this.state.editOrder.invoiceNumber.slice(0, -5),'invoiceNumber')
-        this.onValUpdate(this.state.editOrder.delivery.address,'orderAddress')
-        this.onValUpdate(this.state.editOrder.delivery.postCode,'orderPostCode')
-        this.onValUpdate(this.state.editOrder.delivery.city,'orderCity')
-        this.onValUpdate(this.state.editOrder.delivery.country,'orderCountry')
-        this.onValUpdate(this.state.editOrder.date.admission,'orderDateAdmission')
-        this.onValUpdate(this.state.editOrder.date.delivery,'orderDateDelivery')
+        // this.onValUpdate(this.props.navigation.getParam('order'), 'editOrder')
+        // this.onValUpdate(this.state.editOrder.invoiceNumber.slice(0, -5),'invoiceNumber')
+        // this.onValUpdate(this.state.editOrder.delivery.address,'orderAddress')
+        // this.onValUpdate(this.state.editOrder.delivery.postCode,'orderPostCode')
+        // this.onValUpdate(this.state.editOrder.delivery.city,'orderCity')
+        // this.onValUpdate(this.state.editOrder.delivery.country,'orderCountry')
+        // this.onValUpdate(this.state.editOrder.date.admission,'orderDateAdmission')
+        // this.onValUpdate(this.state.editOrder.date.delivery,'orderDateDelivery')
+        this.getOrder();
+        this.fetchProducts();
+        this.fetchCarriers();
+        this.fetchContractors();
+        this.orderProduct();
 
-        this.unsubscribeCarriers = this.carriersFireBase.onSnapshot(this.fetchCollectionCarriers)
-        this.unsubscribeContractors = this.contractorsFireBase.onSnapshot(this.fetchCollectionContractors)
+
+    }
+
+    async getOrder(){
+        const orderSnap = await getDoc(this.orderDoc);
+
+        if (orderSnap.exists) {
+            const element = orderSnap.data();
+            this.setState({
+                key: orderSnap.key,
+                invoiceNumber: element.invoiceNumber.slice(0, -5),
+                orderAddress: element.delivery.address,
+                orderPostCode: element.delivery.postCode,
+                orderCity: element.delivery.city,
+                orderCountry: element.delivery.country,
+                orderDateAdmission: element.date.admission,
+                orderDateDelivery: element.date.delivery,
+                order: element
+            });
+        } else {
+            // this.props.navigation.navigate('ProductList')
+        }
+    }
 
 
-        const db = firebase.firestore();
-        const orderKey = this.state.editOrder.key;
+    async orderProduct(){
+        const orderKey = this.state.keyOrder;
+        //console.log(orderKey);
         const arrayProduct = []
         const arrayProductKey = []
-        db.collection('ordersProducts')
-            .where('order', '==', orderKey).get().then(querySnapshot => {
-            querySnapshot.forEach((doc) => {
-                const productKey = doc.data().product
-                arrayProductKey.push({
-                    productKey: doc.data().product,
-                    amount: doc.data().amount,
-                })
-            });
-        }).then( () =>{
-            //console.log(arrayProductKey)
-            const elements = []
-            arrayProductKey.map((res, i) => {
-                db.collection('products').doc(res.productKey).get().then((resc) => {
-                    const element = resc.data();
-                    element['amount'] = res.amount
-                    element['key'] = res.productKey
-                    elements.push(element)
-                }).then(() =>{
-                    this.onValUpdate(elements,'choosedProducts')
-                    //console.log(this.state.choosedProducts)
-                })
+        const q = query(this.ordersProductsCollection, where('order', '==', orderKey));
+        let allOrdersProducts = await getDocs(q);
+
+        allOrdersProducts.forEach((res) => {
+            const productKey = res.data().product
+            arrayProductKey.push({
+                productKey: res.data().product,
+                amount: res.data().amount,
             })
         });
+
+        const firestore = getFirestore()
+        const elements = []
+
+        arrayProductKey.map(async (res, i) => {
+            let productCurrentKey = doc(firestore, 'products', res.productKey);
+
+            const productSnap = await getDoc(productCurrentKey);
+            if (productSnap.exists) {
+                const element = productSnap.data();
+                element['amount'] = res.amount
+                element['key'] = res.productKey
+                elements.push(element)
+            }
+
+            this.onValUpdate(elements,'choosedProducts')
+        });
+
         this.onValUpdate(arrayProductKey, 'orderProductKeys')
 
-        this.unsubscribeProducts = this.productsFireBase.onSnapshot(this.fetchCollectionProducts)
+
     }
 
 
-    fetchCollectionCarriers = (querySnapshot) => {
-        const carriers = [];
-        querySnapshot.forEach((res) => {
-            const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
-            carriers.push({
-                key: res.id,
-                name, address, postCode, city, country, phone, nip, email, owner
-            });
-        });
-        this.setState({
-            carriers,
-        });
-
-
-        if (typeof carriers !== 'undefined' && carriers.length === 0) {
-            this.setState({
-                isLoading: false
-            });
-        }
-        this.onValUpdate(carriers, 'AllCarriers')
-        const carrierKey = this.state.editOrder.carrier
-        let getCarrier = carriers.filter(function (el) {
-            return el.key.includes(carrierKey)
-        })
-        this.onValUpdate(getCarrier[0], 'choosedCarrier')
-    }
-
-    fetchCollectionContractors = (querySnapshot) => {
-        const contractors = [];
-        querySnapshot.forEach((res) => {
-            const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
-            contractors.push({
-                key: res.id,
-                name, address, postCode, city, country, phone, nip, email, owner
-            });
-        });
-        this.setState({
-            contractors,
-        });
-        if (typeof contractors !== 'undefined' && contractors.length === 0) {
-            this.setState({
-                isLoading: false
-            });
-        }
-        this.onValUpdate(contractors, 'AllContractors')
-        const contractorKey = this.state.editOrder.contractor.key
-        let getContractor = contractors.filter(function (el) {
-            return el.key.includes(contractorKey)
-        })
-        this.onValUpdate(getContractor[0], 'choosedContractor')
-    }
-
-
-    fetchCollectionProducts = (querySnapshot) => {
+    async fetchProducts() {
         const products = [];
-        querySnapshot.forEach((res) => {
-            const {name, sector, barcode, type_package, weight, price_netto, price_brutto} = res.data()
-            products.push({
-                key: res.id,
-                name, sector, barcode, type_package, weight, price_netto, price_brutto
-            });
-        });
-        this.setState({
-            products,
-        });
-        if (typeof products !== 'undefined' && products.length === 0) {
+        try {
+            let allProducts = await getDocs(this.productsCollection);
+            allProducts.forEach((res) => {
+                const {name, sector, barcode, type_package, weight, price_netto, price_brutto} = res.data()
+                products.push({
+                    key: res.id,
+                    name, sector, barcode, type_package, weight, price_netto, price_brutto
+                });
+            })
             this.setState({
-                isLoading: false
+                products,
+            });
+            if (typeof products !== 'undefined' && products.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(products, 'AllProducts')
+        } catch (err) {
+            //console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania produktów, spróbuj ponownie później',
             });
         }
-        this.onValUpdate(products, 'AllProducts')
     }
 
+    async fetchCarriers() {
+        const carriers = [];
+        try {
+            let allCarriers = await getDocs(this.carriersCollection);
+            allCarriers.forEach((res) => {
+                const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
+                let carrier = {
+                    key: res.id,
+                    name, address, postCode, city, country, phone, nip, email, owner
+                };
+                carriers.push(carrier);
+
+                if(carrier.key == this.state.order.carrier){
+                    this.onValUpdate(carrier, 'choosedCarrier')
+                }
+            })
+           //console.log(this.state.order.carrier)
+            this.setState({
+                carriers,
+            });
+            if (typeof carriers !== 'undefined' && carriers.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(carriers, 'AllCarriers')
+        } catch (err) {
+            //console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania dostawców, spróbuj ponownie później',
+            });
+        }
+    }
+
+    async fetchContractors() {
+        const contractors = [];
+        try {
+            let allContractors = await getDocs(this.contractorsCollection);
+            allContractors.forEach((res) => {
+                const {name, address, postCode, city, country, phone, nip, email, owner} = res.data()
+                let contractor = {
+                    key: res.id,
+                    name, address, postCode, city, country, phone, nip, email, owner
+                };
+                contractors.push(contractor);
+
+                if(contractor.key == this.state.order.contractor.key){
+                    this.onValUpdate(contractor, 'choosedContractor')
+                }
+            })
+            this.setState({
+                contractors,
+            });
+            if (typeof contractors !== 'undefined' && contractors.length === 0) {
+                this.setState({
+                    isLoading: false
+                });
+            }
+            this.onValUpdate(contractors, 'AllContractors')
+        } catch (err) {
+            //console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania kontrahentów, spróbuj ponownie później',
+            });
+        }
+    }
 
     onValUpdate = (val, prop) => {
         const state = this.state;
@@ -284,14 +365,12 @@ class OrdersEditScreen extends Component {
 
 
 
-    saveOrder() {
+    async saveOrder() {
 
-        const key = this.state.editOrder.key
-        const db = firebase.firestore().collection('orders').doc(key)
-
+        const key = this.state.keyOrder
         const productsList = this.state.choosedProducts
-        db.set({
-            invoiceNumber: this.state.invoiceNumber + "/2022",
+        updateDoc(this.orderDoc, {
+            invoiceNumber: this.state.invoiceNumber + "/2023",
             carrier: this.state.choosedCarrier.key,
             delivery: {
                 address: this.state.orderAddress,
@@ -299,7 +378,7 @@ class OrdersEditScreen extends Component {
                 city: this.state.orderCity,
                 country: this.state.orderCountry,
             },
-            date:{
+            date: {
                 admission: this.state.orderDateAdmission,
                 delivery: this.state.orderDateDelivery
             },
@@ -307,26 +386,26 @@ class OrdersEditScreen extends Component {
                 name: this.state.choosedContractor.name,
                 key: this.state.choosedContractor.key
             },
-        }).then(function (docRef) {
+        })
 
-            firebase.firestore().collection('ordersProducts').where('order', '==', key).get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    if(doc.data().order === key){
-                        doc.ref.delete();
-                    }
-                });
-            }).then(() => {
-                productsList.map((res, i) => {
-                    const cureentDb = firebase.firestore().collection('ordersProducts')
-                    cureentDb.add({
-                        order: key,
-                        product: res.key,
-                        amount: res.amount,
-                        collect: res.collectStatus
-                    })
-                })
+        const q = query(collection(db, "ordersProducts"), where('order', '==', key));
+        let allOrdersProducts = await getDocs(q);
+
+        allOrdersProducts.forEach((res) => {
+            const productKey = res.data().product
+            if (res.data().order === key) {
+                const firestore = getFirestore()
+                deleteDoc(doc(firestore, 'ordersProducts', res.id));
+            }
+        });
+
+        productsList.map((res, i) => {
+            addDoc(collection(db, "ordersProducts"), {
+                order: this.state.keyOrder.toString(),
+                product: res.key,
+                amount: res.amount,
+                collectStatus: false
             })
-
         })
 
 

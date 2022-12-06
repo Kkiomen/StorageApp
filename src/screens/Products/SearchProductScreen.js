@@ -1,15 +1,17 @@
 import React, {Component} from 'react'
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import {StyleSheet, View, ScrollView, Button, Text, Modal, Pressable} from "react-native";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import {BarCodeScanner} from "expo-barcode-scanner";
 import InfoField from "../../components/CustomInput/InfoField";
+import {collection, getDocs} from "firebase/firestore";
+import Toast from "react-native-toast-message";
 
 class SearchProductScreen extends Component {
 
     constructor({props, navigation}) {
         super();
-        this.docs = firebase.firestore().collection('products')
+        this.docs = getDocs(collection(db, "products"));
         this.state = {
             searchText: '',
             products: [],
@@ -25,29 +27,41 @@ class SearchProductScreen extends Component {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             this.onValUpdate(status === 'granted', 'hasPermission');
         })();
-        this.unsubscribe = this.docs.onSnapshot(this.fetchCollection)
+        this.fetchProducts();
     }
 
-    fetchCollection = (querySnapshot) => {
+    async fetchProducts() {
         const products = [];
-        querySnapshot.forEach((res) => {
-            const {name, weight, type_package, sector, barcode, price_netto, price_brutto} = res.data()
-            products.push({
-                key: res.id,
-                name,
-                weight,
-                sector,
-                barcode,
-                type_package,
-                price_netto,
-                price_brutto
+        try {
+            const productsRef = collection(db, 'products');
+            let allProducts = await getDocs(productsRef);
+            allProducts.forEach((res) => {
+                const { name, weight, sector, barcode, type_package, price_netto, price_brutto, quantity } = res.data()
+                products.push({
+                    key: res.id,
+                    name,
+                    sector,
+                    weight,
+                    barcode,
+                    type_package,
+                    price_netto,
+                    price_brutto,
+                    quantity
+                });
+            })
+            this.setState({
+                isLoading: false
             });
-        });
-        this.setState({
-            isLoading: false
-        });
-        this.onValUpdate(products, 'AllProducts')
+            this.onValUpdate(products,'AllProducts')
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'Wystąpił problem podczas pobierania produktów, spróbuj ponownie później',
+            });
+        }
     }
+
 
     scanBarCode = () => {
         this.props.navigation.navigate('BarcodeScan', {data: this.state, page: 'SearchProduct'})
@@ -63,9 +77,7 @@ class SearchProductScreen extends Component {
         const state = this.state
         state[prop] = val
         this.setState(state)
-
         if (state[prop].length > 0) {
-
             let productWithTheSameBarcode = this.state.AllProducts.filter(function (el) {
                     return el.barcode.toLowerCase().includes(state[prop].toLowerCase())
                 }
@@ -74,12 +86,11 @@ class SearchProductScreen extends Component {
                 this.onValUpdate(productWithTheSameBarcode, 'products');
             }else{
                 let newArray = this.state.AllProducts.filter(function (el) {
-                        return el.name.toLowerCase().includes(state[prop].toLowerCase())
+                        return el.name.toLowerCase().includes(state[prop].toLowerCase()) || el.barcode.toLowerCase().includes(state[prop].toLowerCase())
                     }
                 );
                 this.onValUpdate(newArray, 'products');
             }
-
         }
     }
 
@@ -118,6 +129,7 @@ class SearchProductScreen extends Component {
                                     <InfoField label="Product" text={res.name} />
                                     <InfoField label="Sector" text={res.sector} />
                                     <InfoField label="Type" text={res.type_package} />
+                                    <InfoField label="Quantity" text={res.quantity} />
                                     <InfoField label="Price (netto)" text={res.price_netto} />
                                     <InfoField label="Price (brutto)" text={res.price_brutto} />
                                 </View>
@@ -125,7 +137,6 @@ class SearchProductScreen extends Component {
                         })
                     }
                 </View>
-
 
                 <Modal
                     animationType="slide"

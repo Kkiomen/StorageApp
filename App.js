@@ -18,6 +18,9 @@ import PickingCollectScreen from "./src/screens/Picking/PickingCollectScreen";
 import SearchProductScreen from "./src/screens/Products/SearchProductScreen";
 import CarrierInformation from "./src/screens/Carriers/CarrierInformation";
 import {decode, encode} from 'base-64'
+import AcceptanceCreateScreen from "./src/screens/Acceptance/AcceptanceCreateScreen";
+import DocumentsListScreen from "./src/screens/Acceptance/DocumentsListScreen";
+import DocumentInfoScreen from "./src/screens/Acceptance/DocumentInfoScreen";
 
 
 const navigator = createStackNavigator(
@@ -52,6 +55,30 @@ const navigator = createStackNavigator(
           screen: ProductEditScreen,
           navigationOptions: () => ({
               title: "Edit a product",
+          }),
+      },
+      AcceptanceCreate: {
+          screen: AcceptanceCreateScreen,
+          navigationOptions: () => ({
+              title: "Add new acceptance",
+          }),
+      },
+      DocumentsList: {
+          screen: DocumentsListScreen,
+          navigationOptions: () => ({
+              title: "Documents",
+          }),
+      },
+      DocumentInfo:{
+        screen: DocumentInfoScreen,
+        navigationOptions: () => ({
+            title: "Document information"
+        })
+      },
+      IssuesCreate: {
+          screen: AcceptanceCreateScreen,
+          navigationOptions: () => ({
+              title: "Add new issues",
           }),
       },
       CompaniesList: {

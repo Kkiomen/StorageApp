@@ -22,6 +22,8 @@ class ProductListScreen extends Component{
     }
 
 
+
+
     async componentDidMount() {
         this.fetchProducts();
     }
@@ -71,12 +73,13 @@ class ProductListScreen extends Component{
         if(state[prop].length === 0){
             this.onValUpdate(this.state.AllProducts, 'products')
         }else{
-            let newArray = this.state.products.filter(function (el)
+            let tmpProductsList = this.state.products.filter(function (el)
                 {
-                    return el.name.toLowerCase().includes(state[prop].toLowerCase()) || el.barcode.toLowerCase().includes(state[prop].toLowerCase())
+                    return el.name.toLowerCase().includes(state[prop].toLowerCase())
+                        || el.barcode.toLowerCase().includes(state[prop].toLowerCase())
                 }
             );
-            this.onValUpdate(newArray, 'products');
+            this.onValUpdate(tmpProductsList, 'products');
         }
     }
 
@@ -101,14 +104,12 @@ class ProductListScreen extends Component{
                         onPress={() => this.navigateToProductAdd()}
                     />
                 </View>
-
                 <CustomInput
                     placeholder="Search .."
                     value={this.state.searchText}
                     setValue={(val) => this.search(val, 'searchText')}
                     style={styles.searchInput}
                 />
-
                 {
                     this.state.products.map((res, i) => {
                         return (
@@ -139,7 +140,8 @@ class ProductListScreen extends Component{
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        padding: 20
+        padding: 20,
+        marginBottom: 30
     },
     loader: {
         position: 'absolute',
