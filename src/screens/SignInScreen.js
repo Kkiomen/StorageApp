@@ -8,6 +8,7 @@ import * as firebase from "firebase/compat";
 import CustomHeaderForm from "../components/CustomHeaderForm/CustomHeaderForm";
 import {auth} from "../../firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {doc, getDoc, getFirestore} from "firebase/firestore";
 
 
 
@@ -48,16 +49,19 @@ const SignInScreen = ({props,navigation}) => {
             .catch(error => alert(error.message))
         // alert("Register done")
     }
-    const onCarrierInfoPressed = () =>{
+    const onCarrierInfoPressed = async () => {
         const orderKey = orderCode;
         let result = undefined;
-        db.collection('orders').doc(orderKey).get().then((order) => {
-            result = order.data();
-        });
+        const firestore = getFirestore()
+        let ref = doc(firestore, 'orders', orderKey);
+        const orderSnap = await getDoc(ref);
+        if (orderSnap.exists) {
+            result = orderSnap.data();
+        }
         navigation.navigate('CarrierInformation', {orderKey: orderCode});
-        if(result !== undefined){
+        if (result !== undefined) {
             navigation.navigate('CarrierInformation', {orderKey: orderCode});
-        }else{
+        } else {
             alert('No such order exists')
         }
 

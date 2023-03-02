@@ -258,7 +258,7 @@ class OrdersCreateScreen extends Component {
         this.onValUpdate(tmp,'choosedProducts')
     }
 
-    saveOrder() {
+    saveOrder = () => {
         const productsList = this.state.choosedProducts
         addDoc(this.orderCollection,{
             invoiceNumber: this.state.invoiceNumber + "/2023",
@@ -277,8 +277,7 @@ class OrdersCreateScreen extends Component {
                 admission: this.state.orderDateAdmission,
                 delivery: this.state.orderDateDelivery
             },
-            typeOrder: this.state.typeOrder,
-            complete: false
+            typeOrder: this.state.typeOrder, complete: false
         }).then(function (docRef) {
             const key = docRef.id
             productsList.map((res, i) => {
@@ -291,8 +290,6 @@ class OrdersCreateScreen extends Component {
                 })
             })
         })
-
-
         this.props.navigation.navigate('OrdersList')
     }
 
@@ -362,20 +359,6 @@ class OrdersCreateScreen extends Component {
                             value={this.state.orderCountry}
                             setValue={(val) => this.onValUpdate(val, 'orderCountry')}
                         />
-
-                        <CustomHeaderForm title="Type" />
-
-                        <Text style={styles.label}>Order type</Text>
-                        <Picker
-                            selectedValue={this.state.typeOrder}
-                            onValueChange={(itemValue, itemIndex) => {
-                                this.onValUpdate(itemValue,'typeOrder')
-                            }}
-                            style={styles.select}
-                        >
-                            <Picker.Item label="Normal order" value="normal"/>
-                            <Picker.Item label="Adoption of the product" value="accept"/>
-                        </Picker>
 
                         <View style={styles.containerColumn}>
                             <View style={styles.itemColumn}>

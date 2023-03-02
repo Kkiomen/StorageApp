@@ -21,6 +21,8 @@ import {decode, encode} from 'base-64'
 import AcceptanceCreateScreen from "./src/screens/Acceptance/AcceptanceCreateScreen";
 import DocumentsListScreen from "./src/screens/Acceptance/DocumentsListScreen";
 import DocumentInfoScreen from "./src/screens/Acceptance/DocumentInfoScreen";
+import PickColl from "./src/screens/Picking/PickingCollectScreen";
+import PickCollScreen from "./src/screens/Picking/PickColl";
 
 
 const navigator = createStackNavigator(
@@ -121,6 +123,12 @@ const navigator = createStackNavigator(
             screen: PickingListScreen,
             navigationOptions: () => ({
                 title: "List of orders to complete",
+            }),
+        },
+        PickColl: {
+            screen: PickCollScreen,
+            navigationOptions: () => ({
+                title: "Orders to complete",
             }),
         },
         PickingCollect: {

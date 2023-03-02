@@ -6,7 +6,18 @@ import CustomInput from "../../components/CustomInput/CustomInput";
 import Toast from "react-native-toast-message";
 import {Placeholder} from "react-bootstrap";
 import CustomHeaderForm from "../../components/CustomHeaderForm/CustomHeaderForm";
-
+import {
+    collection,
+    getDocs,
+    where,
+    query,
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    deleteDoc,
+    addDoc
+} from "firebase/firestore";
 
 const TypeEnum = types
 
@@ -14,8 +25,8 @@ class CompaniesEditScreen extends Component{
 
     constructor({props, navigation}) {
         super();
-        this.ref = firebase.firestore().collection(navigation.getParam('type').toLowerCase()).doc(navigation.getParam('key'));
-        let tmp = navigation.getParam('data')
+        const firestore = getFirestore()
+        this.companyDoc = doc(firestore,navigation.getParam('type').toLowerCase(),navigation.getParam('key'));
         this.state = {
             type: navigation.getParam('type'),
             name: '',
@@ -34,29 +45,33 @@ class CompaniesEditScreen extends Component{
         }else if(navigation.getParam('type') === "CONTRACTORS"){
             this.name = TypeEnum.CONTRACTORS
         }
+        this.fetchCompany();
     }
 
     componentDidMount() {
-        this.ref.get().then((res) => {
-            if (res.exists) {
-                const element = res.data();
-                this.setState({
-                    key: res.id,
-                    name: element.name,
-                    address: element.address,
-                    postCode: element.postCode,
-                    city: element.city,
-                    country: element.country,
-                    phone: element.phone,
-                    nip: element.nip,
-                    email: element.email,
-                    owner: element.owner,
-                    isLoading: false
-                });
-            } else {
-                this.props.navigation.navigate('CompaniesList')
-            }
-        });
+        this.fetchCompany();
+    }
+
+    async fetchCompany() {
+        const companySnap = await getDoc(this.companyDoc);
+        if (companySnap.exists) {
+            const element = companySnap.data();
+            this.setState({
+                key: companySnap.id,
+                name: element.name,
+                address: element.address,
+                postCode: element.postCode,
+                city: element.city,
+                country: element.country,
+                phone: element.phone,
+                nip: element.nip,
+                email: element.email,
+                owner: element.owner,
+                isLoading: false
+            });
+        } else {
+            this.props.navigation.navigate('CompaniesList')
+        }
     }
 
     onValUpdate = (val, prop) => {
@@ -82,7 +97,7 @@ class CompaniesEditScreen extends Component{
             });
 
         } else {
-            this.ref.set({
+            updateDoc(this.companyDoc,{
                 name: this.state.name,
                 address: this.state.address,
                 postCode: this.state.postCode,
@@ -93,12 +108,20 @@ class CompaniesEditScreen extends Component{
                 email: this.state.email,
                 owner: this.state.owner,
             }).then((res) => {
-                this.props.navigation.navigate('CompaniesList')
+                Toast.show({
+                    type: 'success',
+                    text1: 'The data has been updated',
+                    position: "bottom",
+                    bottomOffset: 70
+                });
             }).catch((err) => {
                 Toast.show({
                     type: 'error',
                     text1: 'Something went wrong. Try again later',
+                    position: "bottom",
+                    bottomOffset: 70
                 });
+
             });
         }
     }
@@ -190,19 +213,17 @@ class CompaniesEditScreen extends Component{
                         setValue={(val) => this.onValUpdate(val, 'email')}
                     />
 
-
+                    <View style={styles.button}>
+                        <Button
+                            title='Edit company'
+                            onPress={() => this.editCompanies()}
+                            color="black"
+                            style={styles.buttonCreate}
+                        />
+                    </View>
                 </View>
 
-                <View style={styles.button}>
-                    <Button
-                        title='Edit company'
-                        onPress={() => this.editCompanies()}
-                        color="black"
-                        style={styles.buttonCreate}
-                    />
 
-
-                </View>
                 <Toast style={styles.toast}/>
             </ScrollView>
         );

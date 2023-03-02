@@ -27,13 +27,6 @@ class DocumentsListScreen extends Component{
         };
         this.fetchDocument();
     }
-
-
-    componentDidMount() {
-        this.fetchDocument();
-    }
-
-
     async fetchDocument() {
         const documents = [];
         try {
@@ -62,8 +55,6 @@ class DocumentsListScreen extends Component{
     }
 
 
-
-
     search = (val, prop) => {
         const state = this.state
         state[prop] = val
@@ -90,7 +81,6 @@ class DocumentsListScreen extends Component{
                 </View>
             )
         }
-
         return (
             <View style={styles.wrapper}>
                 <CustomInput
@@ -102,7 +92,6 @@ class DocumentsListScreen extends Component{
                 <ScrollView>
                     {
                         this.state.documentList.map((res, i) => {
-
                             return (
                                 <ListItem
                                     id={i}
@@ -113,7 +102,7 @@ class DocumentsListScreen extends Component{
                                     }}
                                     bottomDivider>
                                     <ListItem.Content>
-                                        <ListItem.Title>Invoice no. {res.documentNumber}/2023</ListItem.Title>
+                                        <ListItem.Title>Document no. {res.documentNumber}/2023</ListItem.Title>
                                         <ListItem.Subtitle>
                                             {res.type == 'ISSUES' ? "ISSUES" : "Acceptance"} - {res.created_at.toDate().toISOString().slice(0, 19).replace(/-/g, "/").replace("T", " ")}
                                         </ListItem.Subtitle>
@@ -126,12 +115,9 @@ class DocumentsListScreen extends Component{
                         })
                     }
                 </ScrollView>
-
             </View>
         );
     }
-
-
 
 
 }

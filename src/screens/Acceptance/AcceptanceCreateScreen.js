@@ -135,11 +135,7 @@ class AcceptanceCreateScreen extends Component {
     }
 
 
-    chooseProduct = (obj) => {
-        this.onValUpdate(obj, 'currentProduct')
-        this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')
-        this.onValUpdate(!this.state.isChoosedProduct, 'isChoosedProduct')
-    }
+
 
 
     handleBarCodeScanned = ({ type, data }) => {
@@ -165,6 +161,12 @@ class AcceptanceCreateScreen extends Component {
         this.onValUpdate(tmp,'choosedProducts')
     }
 
+    chooseProduct = (obj) => {
+        this.onValUpdate(obj, 'currentProduct')
+        this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')
+        this.onValUpdate(!this.state.isChoosedProduct, 'isChoosedProduct')
+    }
+
     saveProduct = () => {
         this.onValUpdate(!this.state.isChoosedProduct, 'isChoosedProduct')
         let choosedProduct = this.state.currentProduct;
@@ -175,18 +177,20 @@ class AcceptanceCreateScreen extends Component {
     }
 
     async fetchLastDocument(){
-        const q = query(collection(db, "documents"), orderBy("created_at", "desc"), limit(1));
+        const q = query(
+                    collection(db, "documents"),
+                    orderBy("created_at", "desc"),
+                    limit(1)
+                );
         let allDocumentProducts = await getDocs(q);
-
         allDocumentProducts.forEach((res) => {
-
             this.onValUpdateOnlyNumber(parseInt(res.data().documentNumber)+1,'documentNumber');
         })
     }
 
-        saveOrder()
+    saveDocument()
         {
-
+            console.log(this.state.documentNumber)
             if (this.state.documentNumber === '' || !this.isNum(this.state.documentNumber)) {
                 Toast.show({
                     type: 'error',
@@ -195,9 +199,7 @@ class AcceptanceCreateScreen extends Component {
                     position: "bottom"
                 });
             }
-
             const productsList = this.state.choosedProducts
-
             const typeDocument = this.state.type;
             const userUID = getAuth().currentUser.uid
             addDoc(collection(db, "documents"), {
@@ -216,7 +218,6 @@ class AcceptanceCreateScreen extends Component {
                     })
                 })
             })
-
             productsList.map((res, i) => {
                 const firestore = getFirestore()
                 let docProduct = doc(firestore, 'products', res.key);
@@ -231,7 +232,6 @@ class AcceptanceCreateScreen extends Component {
                     })
                 }
             })
-
             Toast.show({
                 type: 'success',
                 text1: 'The document is saved',
@@ -306,7 +306,7 @@ class AcceptanceCreateScreen extends Component {
                         <Button
                             title='Add new'
                             color='black'
-                            onPress={() => this.saveOrder()}
+                            onPress={() => this.saveDocument()}
                             style={[styles.buttonStyle, styles.buttonSave]}
                         />
 

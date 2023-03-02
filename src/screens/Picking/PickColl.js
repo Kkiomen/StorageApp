@@ -3,6 +3,9 @@ import {Alert, Modal, StyleSheet, Text, Pressable, View, ScrollView, Button} fro
 import CustomInput from "../../components/CustomInput/CustomInput";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import firebase, {db} from "../../../firebase";
+import {BarCodeScanner} from "expo-barcode-scanner";
+import PickingProductInfo from "../../components/Picking/PickingProductInfo";
+import PickingStatus from "../../components/Picking/PickingStatus";
 import {ListItem} from "react-native-elements";
 import CompanyCardInfoWhite from "../../components/Companies/CompanyCardInfoWhite";
 import ModalSearch from "../../components/Modal/ModalSearch";
@@ -21,8 +24,9 @@ import {
     addDoc
 } from "firebase/firestore";
 import Toast from "react-native-toast-message";
+import ButtonCarrierRamp from "../../components/CustomButton/ButtonCarrierRamp";
 
-class PickingCollectScreen extends Component {
+class PickCollScreen extends Component {
 
     constructor({props, navigation}) {
         super();
@@ -78,7 +82,15 @@ class PickingCollectScreen extends Component {
             editOrder: {},
             productsList: [],
             orderProductKeys: [],
-            order: null
+            order: null,
+            scanned: true,
+            hasPermission: null,
+            choosedProductToShow: {},
+            isChoosedProductToShow: false,
+            modalVisibleRamp: false,
+            ramp: null,
+            tmpRamp: null,
+
         }
         this.getOrder();
         this.fetchProducts();
@@ -88,20 +100,17 @@ class PickingCollectScreen extends Component {
     }
 
     componentDidMount() {
-        // this.onValUpdate(this.props.navigation.getParam('order'), 'editOrder')
-        // this.onValUpdate(this.state.editOrder.invoiceNumber.slice(0, -5),'invoiceNumber')
-        // this.onValUpdate(this.state.editOrder.delivery.address,'orderAddress')
-        // this.onValUpdate(this.state.editOrder.delivery.postCode,'orderPostCode')
-        // this.onValUpdate(this.state.editOrder.delivery.city,'orderCity')
-        // this.onValUpdate(this.state.editOrder.delivery.country,'orderCountry')
-        // this.onValUpdate(this.state.editOrder.date.admission,'orderDateAdmission')
-        // this.onValUpdate(this.state.editOrder.date.delivery,'orderDateDelivery')
+        (async () => {
+            const { status } = await BarCodeScanner.requestPermissionsAsync();
+            this.onValUpdate(status === 'granted', 'hasPermission');
+        })();
+
+
         this.getOrder();
         this.fetchProducts();
         this.fetchCarriers();
         this.fetchContractors();
         this.orderProduct();
-
 
     }
 
@@ -140,6 +149,8 @@ class PickingCollectScreen extends Component {
             arrayProductKey.push({
                 productKey: res.data().product,
                 amount: res.data().amount,
+                orderProduct: res.id,
+                collectStatus: res.data().collectStatus,
             })
         });
 
@@ -154,6 +165,12 @@ class PickingCollectScreen extends Component {
                 const element = productSnap.data();
                 element['amount'] = res.amount
                 element['key'] = res.productKey
+                element['collectStatus'] = res.collectStatus
+                element['orderProduct'] = res.orderProduct
+                if (this.state.isChoosedProductToShow === false && res.collectStatus === false) {
+                    this.onValUpdate(element, 'choosedProductToShow')
+                    this.onValUpdate(true, 'isChoosedProductToShow')
+                }
                 elements.push(element)
             }
 
@@ -281,6 +298,39 @@ class PickingCollectScreen extends Component {
     }
 
 
+    handleBarCodeScanned = ({ type, data }) => {
+        this.onValUpdate(true, 'scanned');
+        this.checkProduct(data)
+    };
+
+    checkProduct(barcode){
+        let array = [...this.state.choosedProducts]
+
+        array.map((res, i) => {
+            if(res.barcode.toString() === barcode.toString()){
+                res.collectStatus = true
+                const firestore = getFirestore()
+                const currentProduct = doc(firestore,'ordersProducts', res.orderProduct);
+
+                updateDoc(currentProduct,{
+                    collectStatus: true,
+                });
+                this.onValUpdate(array,'choosedProducts')
+                this.getFirstProductWitoutCollectStatus()
+            }
+        })
+    }
+
+    getFirstProductWitoutCollectStatus = () =>{
+        let array = this.state.choosedProducts
+        array.map((res, i) => {
+            if(res.collectStatus === false){
+                this.onValUpdate(res,'choosedProductToShow')
+            }
+        })
+    }
+
+
     searchCarriers = (val, prop) => {
         const state = this.state
         state[prop] = val
@@ -363,45 +413,20 @@ class PickingCollectScreen extends Component {
 
 
 
-    async saveOrder(){
-        const key = this.state.keyOrder
-        const productsList = this.state.choosedProducts
-        updateDoc(this.orderDoc, {
-            invoiceNumber: this.state.invoiceNumber + "/2023",
-            carrier: this.state.choosedCarrier.key,
-            delivery: {
-                address: this.state.orderAddress,
-                postCode: this.state.orderPostCode,
-                city: this.state.orderCity,
-                country: this.state.orderCountry,
-            },
-            date: {
-                admission: this.state.orderDateAdmission,
-                delivery: this.state.orderDateDelivery
-            },
-            contractor: {
-                name: this.state.choosedContractor.name,
-                key: this.state.choosedContractor.key
-            },
+    saveRamp(){
+        this.onValUpdate(!this.state.modalVisibleRamp, 'modalVisibleRamp')
+    }
+
+    updateRamp(){
+        updateDoc(this.orderDoc,{
+            ramp: this.state.tmpRamp
         })
-        const q = query(collection(db, "ordersProducts"), where('order', '==', key));
-        let allOrdersProducts = await getDocs(q);
-        allOrdersProducts.forEach((res) => {
-            const productKey = res.data().product
-            if (res.data().order === key) {
-                const firestore = getFirestore()
-                deleteDoc(doc(firestore, 'ordersProducts', res.id));
-            }
+        this.onValUpdate(this.state.tmpRamp, 'ramp')
+        this.onValUpdate(!this.state.modalVisibleRamp, 'modalVisibleRamp')
+        Toast.show({
+            type: 'success',
+            text1: 'Number ramp is saved',
         });
-        productsList.map((res, i) => {
-            addDoc(collection(db, "ordersProducts"), {
-                order: this.state.keyOrder.toString(),
-                product: res.key,
-                amount: res.amount,
-                collectStatus: false
-            })
-        })
-        this.props.navigation.navigate('OrdersList')
     }
 
     render() {
@@ -423,112 +448,48 @@ class PickingCollectScreen extends Component {
                             {orderType}
                         </View>
 
-                        <Text style={styles.label}>Invoice number</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.invoiceNumber}
-                            setValue={(val) => this.onValUpdateOnlyNumber(val, 'invoiceNumber')}
-                            keyboardType="numeric"
-                        />
+                        <Grid>
+                            <Col size={1}>
+                                <PickingProductInfo product={this.state.choosedProductToShow} />
+                            </Col>
+                            <Col size={1}>
+                                <BarCodeScanner
+                                    onBarCodeScanned={this.state.scanned ? undefined : this.handleBarCodeScanned}
+                                    style={[styles.barcode]}
+                                />
+                            </Col>
+                        </Grid>
 
-                        <CustomHeaderForm title="Date" />
+                        {this.state.scanned && <Button title={'Click to start scanning'} onPress={() => this.onValUpdate(false, 'scanned')} />}
 
-                        <Text style={styles.label}>Date of receipt of the product</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderDateAdmission}
-                            setValue={(val) => this.onValUpdate(val, 'orderDateAdmission')}
-                        />
-
-                        <Text style={styles.label}>Product delivery date</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderDateDelivery}
-                            setValue={(val) => this.onValUpdate(val, 'orderDateDelivery')}
-                        />
-
-
-
-                        <CustomHeaderForm title="Delivery" />
-
-                        <Text style={styles.label}>Address</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderAddress}
-                            setValue={(val) => this.onValUpdate(val, 'orderAddress')}
-                        />
-
-                        <Text style={styles.label}>PostCode</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderPostCode}
-                            setValue={(val) => this.onValUpdate(val, 'orderPostCode')}
-                        />
-
-                        <Text style={styles.label}>City</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderCity}
-                            setValue={(val) => this.onValUpdate(val, 'orderCity')}
-                        />
-
-                        <Text style={styles.label}>Country</Text>
-                        <CustomInput
-                            placeholder=""
-                            value={this.state.orderCountry}
-                            setValue={(val) => this.onValUpdate(val, 'orderCountry')}
-                        />
 
                         {/*<CustomHeaderForm title="Type" />*/}
 
 
                         <View style={styles.containerColumn}>
                             <View style={styles.itemColumn}>
-                                <Button
-                                    title='Add Carrier'
-                                    color="black"
-                                    onPress={() => this.onValUpdate(!this.state.modalVisibleCarrier, 'modalVisibleCarrier')}
-                                    style={styles.buttonDelete}
-                                />
                                 <CompanyCardInfoWhite company={this.state.choosedCarrier}/>
                             </View>
                             <View style={styles.itemColumn}>
-                                <Button
-                                    title='Add contractor'
-                                    color="black"
-                                    onPress={() => this.onValUpdate(!this.state.modalVisibleContractor, 'modalVisibleContractor')}
-                                    style={styles.buttonDelete}
-                                />
                                 <CompanyCardInfoWhite company={this.state.choosedContractor}/>
                             </View>
                         </View>
 
 
-                        <View style={styles.productsView}>
-                            <Button
-                                title='+ Add product'
-                                color="green"
-                                onPress={() => this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')}
-                                style={styles.buttonDelete}
-                            />
-                        </View>
-
                         {
 
                             this.state.choosedProducts.map((res, i) => {
+
                                 return (
                                     <View style={styles.listView} key={i}>
                                         <Grid>
                                             <Col size={3}>
                                                 <Text style={styles.ProductsListTitle}>{res.name}</Text>
                                                 <Text style={styles.ProductsListAmount}>Amount: {res.amount}</Text>
+                                                <Text style={styles.ProductsListAmount}>Type: {res.type_package}</Text>
                                             </Col>
-                                            <Col size={1}>
-                                                <Button
-                                                    title='X'
-                                                    color="red"
-                                                    onPress={() => this.deleteProductFromList(res, i)}
-                                                />
+                                            <Col size={2}>
+                                                <PickingStatus collectStatus={res.collectStatus} />
                                             </Col>
                                         </Grid>
                                     </View>
@@ -536,200 +497,49 @@ class PickingCollectScreen extends Component {
                             })
                         }
 
-                        <Button
-                            title='Edit order'
-                            color='black'
-                            onPress={() => this.saveOrder()}
-                            style={styles.editButton}
-                        />
+                        <View style={styles.carrierInformation}>
+                            <ButtonCarrierRamp
+                                text="Set ramp"
+                                ramp={this.state.ramp}
+                                onPress={() => this.saveRamp()}
+                            />
+                        </View>
+
 
                     </View>
                 </ScrollView>
 
-                {/*<ModalSearch*/}
-                {/*    searchFunction={(val) => this.searchCarriers(val, 'searchCarrier')}*/}
-                {/*    searchValue = {this.state.searchCarrier}*/}
-                {/*    onChoose={(e) => this.chooseCarrier(e)}*/}
-                {/*    models={this.state.carriers}*/}
-                {/*    visible={this.state.modalVisibleCarrier}*/}
-                {/*/>*/}
-
 
                 <Modal
                     animationType="slide"
                     transparent={true}
-                    visible={this.state.modalVisibleCarrier}
-                    onRequestClose={() => this.onValUpdate(!this.state.modalVisibleCarrier, 'modalVisibleCarrier')}
+                    visible={this.state.modalVisibleRamp}
+                    onRequestClose={() => this.onValUpdate(!this.state.modalVisibleRamp, 'modalVisibleRamp')}
                 >
                     <View style={styles.centeredView}>
                         <View style={styles.modalView}>
                             <View style={styles.modalCloseView}>
                                 <Pressable
                                     style={styles.modalCloseView}
-                                    onPress={() => this.onValUpdate(!this.state.modalVisibleCarrier, 'modalVisibleCarrier')}
-                                >
-                                    <Text style={styles.textStyle}>X</Text>
-                                </Pressable>
-                            </View>
-                            <View
-                                style={styles.modalCenter}>
-                                <CustomInput
-                                    placeholder="Search .."
-                                    value={this.state.searchCarrier}
-                                    setValue={(val) => this.searchCarriers(val, 'searchCarrier')}
-                                    style={styles.searchInput}
-                                />
-                                <ScrollView>
-                                    {
-                                        this.state.carriers.map((res, i) => {
-                                            return (
-                                                <View style={styles.listView}>
-                                                    <Pressable
-                                                        key={i}
-                                                        onPress={() => this.chooseCarrier(res)}
-                                                    >
-                                                        <Text>{res.name}</Text>
-                                                    </Pressable>
-                                                </View>
-                                            );
-                                        })
-                                    }
-                                </ScrollView>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
-
-
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={this.state.modalVisibleContractor}
-                    onRequestClose={() => this.onValUpdate(!this.state.modalVisibleContractor, 'modalVisibleContractor')}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <View style={styles.modalCloseView}>
-                                <Pressable
-                                    style={styles.modalCloseView}
-                                    onPress={() => this.onValUpdate(!this.state.modalVisibleContractor, 'modalVisibleContractor')}
-                                >
-                                    <Text style={styles.textStyle}>X</Text>
-                                </Pressable>
-                            </View>
-                            <View
-                                style={styles.modalCenter}>
-                                <CustomInput
-                                    placeholder="Search .."
-                                    value={this.state.searchContractor}
-                                    setValue={(val) => this.searchCarriers(val, 'searchContractor')}
-                                    style={styles.searchInput}
-                                />
-                                <ScrollView>
-                                    {
-                                        this.state.contractors.map((res, i) => {
-                                            return (
-                                                <View style={styles.listView}>
-                                                    <Pressable
-                                                        key={i}
-                                                        onPress={() => this.chooseContractor(res)}
-                                                    >
-                                                        <Text>{res.name}</Text>
-                                                    </Pressable>
-                                                </View>
-                                            );
-                                        })
-                                    }
-                                </ScrollView>
-                            </View>
-
-
-                        </View>
-                    </View>
-                </Modal>
-
-
-                {/*Product*/}
-
-
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={this.state.modalVisibleProduct}
-                    onRequestClose={() => this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <View style={styles.modalCloseView}>
-                                <Pressable
-                                    style={styles.modalCloseView}
-                                    onPress={() => this.onValUpdate(!this.state.modalVisibleProduct, 'modalVisibleProduct')}
+                                    onPress={() => this.onValUpdate(!this.state.modalVisibleRamp, 'modalVisibleRamp')}
                                 >
                                     <Text style={styles.textStyle}>X</Text>
                                 </Pressable>
                             </View>
                             <View style={styles.modalCenter}>
-                                <CustomInput
-                                    placeholder="Search .."
-                                    value={this.state.searchProduct}
-                                    setValue={(val) => this.searchProduct(val, 'searchProduct')}
-                                    style={styles.searchInput}
-                                />
-                                <ScrollView>
-                                    {
-                                        this.state.products.map((res, i) => {
-                                            return (
-                                                <View style={styles.listView}>
-                                                    <Pressable
-                                                        key={i}
-                                                        onPress={() => this.chooseProduct(res)}
-                                                    >
-                                                        <Text>{res.name}</Text>
-                                                    </Pressable>
-                                                </View>
-                                            );
-                                        })
-                                    }
-                                </ScrollView>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
-
-
-                {/* Set Information */}
-
-
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={this.state.isChoosedProduct}
-                    onRequestClose={() => this.onValUpdate(!this.state.isChoosedProduct, 'isChoosedProduct')}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <View style={styles.modalCloseView}>
-                                <Pressable
-                                    style={styles.modalCloseView}
-                                    onPress={() => this.onValUpdate(!this.state.isChoosedProduct, 'isChoosedProduct')}
-                                >
-                                    <Text style={styles.textStyle}>X</Text>
-                                </Pressable>
-                            </View>
-                            <View style={styles.modalCenter}>
-                                <Text style={styles.textProductInfo}>Produkt: {this.state.currentProduct.name}</Text>
-                                <Text style={styles.label}>Amount</Text>
+                                <Text style={styles.textProductInfo}>Ramp:  {this.state.ramp} </Text>
+                                <Text style={styles.label}>Ramp number</Text>
                                 <CustomInput
                                     placeholder=""
-                                    value={this.state.amountProduct}
-                                    setValue={(val) => this.onValUpdateOnlyNumber(val, 'amountProduct')}
+                                    value={this.state.tmpRamp}
+                                    setValue={(val) => this.onValUpdateOnlyNumber(val, 'tmpRamp')}
                                     keyboardType="numeric"
                                     style={styles.searchInput}
                                 />
                                 <Button
-                                    title='Add product'
+                                    title='Set number ramp'
                                     color="black"
-                                    onPress={() => this.saveProduct()}
+                                    onPress={() => this.updateRamp()}
                                     style={styles.buttonDelete}
                                 />
                             </View>
@@ -737,8 +547,11 @@ class PickingCollectScreen extends Component {
                     </View>
                 </Modal>
 
-
             </View>
+
+
+
+
         );
     }
 
@@ -790,6 +603,9 @@ const styles = StyleSheet.create({
     },
     marginBottom: {
         marginBottom: 30
+    },
+    carrierInformation:{
+      marginBottom: 10
     },
     containerColumn: {
         flex: 1,
@@ -848,9 +664,11 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: "bold",
         textTransform: "uppercase"
-    }
+    },
+    barcode:{
+        height: 300,
+    },
 
 });
-
-export default PickingCollectScreen;
+export default PickCollScreen;
 

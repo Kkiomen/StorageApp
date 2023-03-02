@@ -1,10 +1,11 @@
-import React, {Component, useLayoutEffect} from 'react'
+import React, {Component} from 'react'
 import {StyleSheet, View, Text, ActivityIndicator, ScrollView, Button} from "react-native";
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import {ListItem} from "react-native-elements";
 import types from "./type";
-
+import { collection, getDocs } from "firebase/firestore";
+import Toast from "react-native-toast-message";
 
 const TypeEnum = types
 
@@ -13,8 +14,8 @@ class CompaniesListScreen extends Component{
 
     constructor({props, navigation}) {
         super();
-        this.docs = firebase.firestore().collection(navigation.getParam('type').toLowerCase())
-
+        this.carriers = collection(db, "carriers");
+        this.contractors = collection(db, "contractors");
         if(navigation.getParam('type') === "CARRIERS"){
             this.name = TypeEnum.CARRIERS
         }else if(navigation.getParam('type') === "CONTRACTORS"){
@@ -29,41 +30,47 @@ class CompaniesListScreen extends Component{
             searchText: '',
             type: navigation.getParam('type')
         };
+
+        if(navigation.getParam('type') === "CARRIERS"){
+            this.fetchCompanies(this.carriers);
+        }else if(navigation.getParam('type') === "CONTRACTORS"){
+            this.fetchCompanies(this.contractors);
+        }
+
+
     }
 
     useLayoutEffect() {
         this.navigation.setOptions({headerShown: true, title: 'gdfdfg'});
     }
 
-    componentDidMount() {
-        this.unsubscribe = this.docs.onSnapshot(this.fetchCollection)
-    }
-
-    fetchCollection = (querySnapshot) => {
+    async fetchCompanies(type) {
         const companies = [];
-        querySnapshot.forEach((res) => {
-            const { name,nip,city } = res.data()
-            companies.push({
-                key: res.id,
-                name,
-                nip,
-                city
-            });
-        });
-        this.setState({
-            companies,
-            isLoading: false
-        });
-        if (typeof companies !== 'undefined' && companies.length === 0) {
+        try {
+            let allCompaniesCollections = await getDocs(type);
+
+            allCompaniesCollections.forEach((res) => {
+                const {name, nip, city} = res.data()
+                companies.push({
+                    key: res.id,
+                    name,
+                    nip,
+                    city
+                });
+            })
             this.setState({
-                isLoading: false
+                companies,
+                isLoading: false,
+                AllCompanies: companies
+            });
+        } catch (err) {
+            console.log(err)
+            Toast.show({
+                type: 'error',
+                text1: 'There was a problem while downloading carriers, try again later',
             });
         }
-
-
-        this.onValUpdate(companies,'AllCompanies')
     }
-
 
     onValUpdate = (val, prop) => {
         const state = this.state

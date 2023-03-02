@@ -8,7 +8,7 @@ const PickingStatus = ({collectStatus}) => {
         return (
             <Text style={[styles.statusCollect, styles.true]}>Completed</Text>
         );
-    }else{r
+    }else{
         return (
             <Text style={[styles.statusCollect, styles.false]}>Incomplete</Text>
         );

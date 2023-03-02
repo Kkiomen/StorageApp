@@ -161,8 +161,6 @@ class OrdersEditScreen extends Component {
         });
 
         this.onValUpdate(arrayProductKey, 'orderProductKeys')
-
-
     }
 
 
@@ -365,8 +363,7 @@ class OrdersEditScreen extends Component {
 
 
 
-    async saveOrder() {
-
+    async saveOrder(){
         const key = this.state.keyOrder
         const productsList = this.state.choosedProducts
         updateDoc(this.orderDoc, {
@@ -387,10 +384,8 @@ class OrdersEditScreen extends Component {
                 key: this.state.choosedContractor.key
             },
         })
-
         const q = query(collection(db, "ordersProducts"), where('order', '==', key));
         let allOrdersProducts = await getDocs(q);
-
         allOrdersProducts.forEach((res) => {
             const productKey = res.data().product
             if (res.data().order === key) {
@@ -398,7 +393,6 @@ class OrdersEditScreen extends Component {
                 deleteDoc(doc(firestore, 'ordersProducts', res.id));
             }
         });
-
         productsList.map((res, i) => {
             addDoc(collection(db, "ordersProducts"), {
                 order: this.state.keyOrder.toString(),
@@ -407,8 +401,6 @@ class OrdersEditScreen extends Component {
                 collectStatus: false
             })
         })
-
-
         this.props.navigation.navigate('OrdersList')
     }
 
@@ -417,7 +409,7 @@ class OrdersEditScreen extends Component {
         if(this.state.editOrder.typeOrder == 2){
             orderType = <Text style={styles.typeOrder}>TYPE: Order</Text>;
         }else{
-            orderType = <Text style={styles.typeOrder}>TYPE: Adoption of the product</Text>
+            orderType = <Text style={styles.typeOrder}>TYPE: Order</Text>
         }
 
         return (
@@ -487,7 +479,7 @@ class OrdersEditScreen extends Component {
                             setValue={(val) => this.onValUpdate(val, 'orderCountry')}
                         />
 
-                        <CustomHeaderForm title="Type" />
+                        {/*<CustomHeaderForm title="Type" />*/}
 
 
                         <View style={styles.containerColumn}>

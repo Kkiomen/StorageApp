@@ -1,9 +1,17 @@
 import React, {useState, useEffect, Component} from 'react'
 import {StyleSheet, View, Text, Button, ScrollView, ActivityIndicator} from "react-native";
-import firebase from "../../../firebase";
+import firebase, {db} from "../../../firebase";
 import CustomInput from "../../components/CustomInput/CustomInput";
 import {ListItem} from "react-native-elements";
 import {isLoading} from "expo-font";
+import {
+    collection,
+    getDocs,
+    where,
+    query,
+    doc, getFirestore,
+
+} from "firebase/firestore";
 class PickingListScreen extends Component{
 
     onValUpdate = (val, prop) => {
@@ -14,38 +22,47 @@ class PickingListScreen extends Component{
 
     constructor({props, navigation}) {
         super();
-        this.db = firebase.firestore();
+        const firestore = getFirestore();
+        this.orderCollection = collection(db, "orders");
         this.state = {
             orderList: [],
             orderListAll: [],
             isLoading: false,
             searchText: '',
-            isDeleted: false
+            isDeleted: false,
+            type: navigation.getParam('type')
         };
+
+        this.fetchOrders()
     }
 
     componentDidMount() {
-        this.db.collection('orders').where('typeOrder', '==',this.props.navigation.getParam('type')).get().then(querySnapshot => {
-            const order = []
-            querySnapshot.forEach((doc) => {
-                const { invoiceNumber,contractor, carrier,typeOrder} = doc.data()
-                const contractorKey = doc.data().contractor
-                let tmpOrderObject = {
-                    key: doc.id,
-                    invoiceNumber,
-                    contractor,
-                    carrier,
-                    typeOrder
-                }
-                order.push(tmpOrderObject);
-            });
-
-            this.onValUpdate(order,'orderList')
-            this.onValUpdate(order,'orderListAll')
-            this.onValUpdate(true, 'isLoading')
-        });
     }
 
+    async fetchOrders() {
+        const q = query(this.orderCollection, where('type', '==', this.state.type));
+        let allOrders = await getDocs(q);
+        const order = []
+        allOrders.forEach((res) => {
+            const { invoiceNumber,contractor, carrier,typeOrder,date,delivery} = res.data()
+            const contractorKey = res.data().contractor
+            let tmpOrderObject = {
+                key: res.id,
+                invoiceNumber,
+                contractor,
+                carrier,
+                typeOrder,
+                date,
+                delivery
+            }
+
+
+            order.push(tmpOrderObject);
+        });
+        this.onValUpdate(order,'orderList')
+        this.onValUpdate(order,'orderListAll')
+        this.onValUpdate(true, 'isLoading')
+    }
 
 
 
@@ -94,10 +111,8 @@ class PickingListScreen extends Component{
                                 <ListItem
                                     key={i}
                                     onPress={() => {
-
-                                        this.props.navigation.navigate('PickingCollect', {
-                                            orderKey: res.key,
-                                            order: res
+                                        this.props.navigation.navigate('PickColl', {
+                                            orderKey: res.key
                                         });
                                     }}
                                     bottomDivider>
